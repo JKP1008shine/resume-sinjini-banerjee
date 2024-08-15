@@ -96,7 +96,7 @@ tree ul {
   border-width: 0 0 2px 2px;
 }
 
-img{
+.img-profile{
     border-radius: 10%;
     border: solid  2px #718add;
     height: 150px;
