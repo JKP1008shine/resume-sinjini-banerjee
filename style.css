@@ -4,16 +4,19 @@ body{
 
 .main{
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr 2fr 1fr;
   grid-template-rows: 1fr 3fr 1fr;
 }
 
 .section1{
-  grid-row-start: 2;
-  grid-row-end: 2;
-  grid-column-start: 1;
-  grid-column-end: 1;
+  grid-row-start: 1;
+  grid-row-end: 1;
+  grid-column-start: 2;
+  grid-column-end: 2;
   color: white;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 50px;
 }
 
 .section2{
@@ -24,6 +27,13 @@ body{
   color: white;
   font-family: monospace;
 }
+.content-head-meet-sinjini{
+  font-size: 25px;
+  font-weight: bold;
+  padding-left:15px;
+  padding-bottom: 5px;
+}
+
 .content-head{
   font-size: 25px;
   font-weight: bold;
@@ -43,16 +53,95 @@ body{
   /*color: #718add;*/
   border-bottom: 3px solid #718add;
 }
+.short-content{
+  font-size: 14px;
+  color: grey;
+}
+.center{
+  text-align: center;
+}
+.tree {
+  --spacing: 1rem;
+  --radius: 10px;
+}
+
+.tree li {
+  display: block;
+  position: relative;
+  padding-left: calc(2 * var(--spacing) - var(--radius) - 2px);
+}
+
+tree ul {
+  margin-left: calc(var(--radius) - var(--spacing));
+  padding-left: 0;
+}
+
+.tree ul li {
+  border-left: 2px solid #718add;
+}
+
+.tree ul li:last-child {
+  border-color: transparent;
+}
+
+.tree ul li::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: calc(var(--spacing) / -4);
+  left: -2px;
+  width: calc(var(--spacing) + 2px);
+  height: calc(var(--spacing) + 1px);
+  border: solid #718add;
+  border-width: 0 0 2px 2px;
+}
 
 img{
     border-radius: 10%;
     border: solid  2px #718add;
     height: 150px;
     width: 150px;
-    margin-left: 400px;
     padding: 5px;
 }
 
 
 /* Responsive  */
+@media screen and (max-width: 1200px) {
+  .main {
+    grid-template-columns: 1fr; /* Single column layout */
+    grid-template-rows: auto auto auto; /* Adjust rows to auto height */
+  }
+  
+  .section1, .section2 {
+    grid-column-start: 1;
+    grid-column-end: 1;
+  }
 
+  .section1 {
+    grid-row-start: 1;
+    grid-row-end: 1;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+  }
+
+  .section2 {
+    grid-row-start: 2;
+    grid-row-end: 2;
+  }
+  .content-head-meet-sinjini {
+    text-align: center;
+  }
+  img{
+    border-radius: 10%;
+    border: solid  2px #718add;
+    height: 120px;
+    width: 120px;
+    /*margin-left: 10px;
+    margin-bottom:10px;*/
+    
+    padding: 5px;
+}
+
+
+}
