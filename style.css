@@ -28,29 +28,30 @@ body{
   font-family: monospace;
 }
 .content-head-meet-sinjini{
-  font-size: 25px;
+  font-size: clamp(1rem, 2.5vw, 2rem);
   font-weight: bold;
   padding-left:15px;
   padding-bottom: 5px;
 }
 
 .content-head{
-  font-size: 25px;
+  font-size: clamp(.5rem, 2.5vw, 1.5rem);
   font-weight: bold;
-  padding-left:15px;
+  padding-left: 15px;
   padding-bottom: 5px;
 }
 
 .content-head-docker{
   text-align: center;
-  font-size: 25px;
+  font-size: clamp(1rem, 2.5vw, 2rem);
   font-weight: bold;
   font-family: monospace;
 }
 
 .content-sub{
   padding-left: 15px;
-  font-size: 16px;
+  font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+
   padding-bottom: 5px;
 
 }
@@ -61,7 +62,7 @@ body{
   border-bottom: 3px solid #718add;
 }
 .short-content{
-  font-size: 14px;
+  font-size: clamp(8px, 15px, 15px);
   color: grey;
 }
 .center{
