@@ -5,7 +5,7 @@ body{
 .main{
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
-  grid-template-rows: 1fr 3fr 1fr;
+  grid-template-rows: 1fr 3fr;
 }
 
 .section1{
@@ -51,8 +51,9 @@ body{
 .content-sub{
   padding-left: 15px;
   font-size: clamp(0.9rem, 1.5vw, 1.2rem);
-
+  text-align: justify;
   padding-bottom: 5px;
+  padding-right: 10px;
 
 }
 
