@@ -118,6 +118,17 @@ tree ul {
     width: 350px;
 }
 
+a{
+  text-decoration:none;
+}
+a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:hover {
+  color: #718add ;
+}
 
 
 /* Responsive  */
@@ -156,7 +167,7 @@ tree ul {
     margin-bottom:10px;*/
     
     padding: 5px;
-}
+  }
 
 
 }
