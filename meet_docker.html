@@ -15,10 +15,46 @@
          Meet Sinjini<span class="short-content"> (she/her) pronounced as [SHIN-jee-nee]</span>
 </div>-->
        <div class="content-sub"> 
-        If you are an aspiring Developer or SRE, you will have eventually come across this term DOCKER! Docker is must
-          this days. We will dive deep into this topics. The main motive is to explain everything I have learnt 
-          about docker, from basics to intermediate to advance. It's just a win-win scenerio, where I will be explaining what I have learnt and you will be learning what you probably have missed out or want to revise. Let's go!
-       </div>
+       If you are an aspiring Developer or SRE, you will eventually come across the term DOCKER! Docker is essential these days. The main goal of this write-up is to explain everything I have learned about Docker, from basics to intermediate to advanced. It’s a win-win scenario: I will be explaining what I’ve learned (which helps reinforce my understanding – Feynman Technique), and you will have the opportunity to learn what you might have missed or want to revise. Let's get started!       
+        </div>
+        <br>
+        <div class="content-head">
+          What is Docker?
+        </div>
+        <div class="content-sub">
+          Docker is a tool for containerization. Is that all? Yes, that’s it. Similar to Docker, there are many other containerization tools such as Podman, CRI-O, Containerd, and rkt (Rocket). So, our focus now is to answer the question: What is containerization?
+        </div>
+        <br>
+        <div class="content-head">
+          What is Containerization?
+        </div>
+        <div class="content-sub">
+          Containerization is the process of running different processes in isolation with their own dependencies on a single local system.
+It may seem simple, but let’s dive deeper into the problems it solves.
+        </div>
+        <br>
+        <div class="content-sub">
+          <b>Scenerio 1</b>
+        </div>
+        <br>
+        <div class="content-sub">
+          You have two Python applications that you want to run on your local system. The Python version on your system is 3.10, but one application requires Python 3.7 and the other requires Python 3.8.
+You think, "Let’s give it a try. What if it runs anyway?" You attempt to run the first application, but it throws an error: "RuntimeError: This application requires Python 3.7 or above. Current version: 3.10."
+          Sad :(<br><br>
+You decide to downgrade your Python version to 3.7. Now it works for the first application, but what about the second application? Upgrading to Python 3.8? While this might work once, you can't run both applications simultaneously on your system.
+You might consider using Python virtual environments. While virtual environments like venv or pyenv can help manage different Python versions and prevent package conflicts, they can't solve problems related to OS differences. Sometimes code that runs fine on your system fails on a colleague’s system due to differences in OS and system libraries. This issue is not unique to Python; other languages like C/C++, Go, Rust, and Node.js face similar challenges. Although these languages have their own methods for managing packages and versions, the problem of OS and system library differences remains.
+        </div>
+        <br>
+        <div class="content-sub">
+          <b>The Problems</b>
+        </div>
+        <div class="content-sub">
+          The issues we just saw are:
+          <br>
+          <ul>
+            <li><b>Environmental Inconsistency:</b> Applications behave differently in production, development, and testing environments due to differences in system configuration, libraries, and OS.</li>
+            <li><b>Lack of Isolation:</b> Applications with different versions of dependencies cannot be run simultaneously on a single system.</li>
+        </div>
       </div>
     </div> 
   </body>
