@@ -34,7 +34,7 @@ It may seem simple, but let’s dive deeper into the problems it solves.
         </div>
         <br>
         <div class="content-sub highlight">
-          <span class="highlight-purple"><b>Scenerio 1</b></span>
+          <span class="highlight-purple"><b>Scenario 1</b></span>
         </div>
         <br>
         <div class="content-sub">
@@ -58,11 +58,11 @@ You decide to downgrade your Python version to 3.7. Now it works for the first a
         </div>
         <br>
         <div class="content-sub highlight-purple highlight">
-          <b>Scenerio 2</b>
+          <b>Scenario 2</b>
         </div>
         <div class="content-sub">
           <br>
-          On any given day, if you choose to use VMs (virtual machines) to run applications with different dependencies to achieve isolation on a single local system, think again!<br><br>
+          On any given day, if you choose to use <span class="highlight-purple">VMs (virtual machines)</span> to run applications with different dependencies to achieve isolation on a single local system, think again!<br><br>
           It's true that VMs can help prevent the problem we face regarding system dependencies and differences in OSs. However, it’s a very resource-intensive solution.<br><br>
 VMs use OS images (e.g., .iso files), which include a bootloader, kernel, filesystems, packages, etc., to load an operating system inside your local system that already has its own OS running. Essentially, VMs give us the ability to run multiple operating systems inside a single local system, but using VMs solely to run applications is not an efficient solution. Just imagine: your CPU and RAM are now being utilized by the kernel and system programs of both your local system and the VMs simultaneously. Therefore, running multiple VMs just to support applications is resource-intensive. This can significantly degrade the performance of both your system and the applications, placing a heavy load on your resources.
         </div>
@@ -72,9 +72,21 @@ VMs use OS images (e.g., .iso files), which include a bootloader, kernel, filesy
         </div>
         <div class="content-sub">
           <ul>
-            <li><b><span class="highlight-purple">Resource Intensive</span></b>: Even though VMs can provide isolation by running different OSs in a single system, it will be very resourcce intensive.</li>
+            <li><b><span class="highlight-purple">Resource Intensive</span></b>: Even though VMs can provide isolation by running different OSs in a single system, it will be very resource intensive.</li>
           </ul>
         </div>
+        <br>
+        <div class="content-sub highlight-purple highlight">
+            <b>Scenaerio 3</b>
+        </div> 
+        <br>
+         <div class="content-sub">
+           Say your application was running successfully in your server and now its gaining popularity, With increasing users, you start facing performance issues. You will spend your bucks on more servers? That will also involve provisioning them, installing dependencies and deploy the application. 
+         </div>
+        <br>
+        <div class="content-sub">More such <span class="highlight-purple"><b>Scenarios</b></span> like scaling, security, and automating integration and deployment, often encounter conflicts and errors, and improper troubleshooting can cause disruptions in the user experience. Docker solves them all.
+        </div>
+
         <div class="center"><br><br><br> © Copyright 2024. All right Reserved.</div>
         <div class="center">
           <p id="lastUpdated"></p>
