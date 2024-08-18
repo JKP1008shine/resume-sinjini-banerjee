@@ -64,6 +64,12 @@ body{
   /*color: #718add;*/
   border-bottom: 3px solid #718add;
 }
+
+.highlight-purple{
+ font-weight: bold;
+ color: #718add;
+
+}
 .short-content{
   font-size: clamp(8px, 15px, 15px);
   color: grey;
