@@ -11,6 +11,14 @@
         <img class="img-docker" src="static/docker.svg">
       </div>
       <div class = "section2">
+        <div class="content-head-meet-sinjini">
+          Quick links
+       </div>
+       <div class="content-sub">
+          <ul>
+            <li></li>
+          </ul>
+        </div>
         <!--<div class="content-head-meet-sinjini">
          Meet Sinjini<span class="short-content"> (she/her) pronounced as [SHIN-jee-nee]</span>
 </div>-->
@@ -40,7 +48,7 @@ It may seem simple, but let’s dive deeper into the problems it solves.
         <div class="content-sub">
           You have two Python applications that you want to run on your local system. The Python version on your system is 3.10, but one application requires Python 3.7 and the other requires Python 3.8.
 You think, "Let’s give it a try. What if it runs anyway?" You attempt to run the first application, but it throws an error: "RuntimeError: This application requires Python 3.7 or above. Current version: 3.10."
-          Sad :(<br><br>
+          Sad<span class="highlight-purple"> :(</span><br><br>
 You decide to downgrade your Python version to 3.7. Now it works for the first application, but what about the second application? Upgrading to Python 3.8? While this might work once, you can't run both applications simultaneously on your system.
           <br> <br>Wait! You still have a comeback left, you might consider using Python virtual environments. <br><br>While virtual environments like venv or pyenv can help manage different Python versions and prevent package conflicts, they can't solve problems related to OS differences. Sometimes code that runs fine on your system fails on a colleague’s system due to differences in OS and system libraries. This issue is not unique to Python; other languages like C/C++, Go, Rust, and Node.js face similar challenges. Although these languages have their own methods for managing packages and versions, the problem of OS and system library differences remains.
         </div>
@@ -136,7 +144,30 @@ VMs use OS images (e.g., .iso files), which include a bootloader, kernel, filesy
             Let's recall what else a container can do—it separates things out and provides 
             <span class="highlight-purple"><b>isolation</b></span>. Docker containers can run different applications with different dependencies and versions in isolation, preventing any kind of conflicts on a single system. Infact if these containers are supposed to run same applications with same dependencies just use that same image to create multiple similar conatainers, cool I know.
             <br><br>
-            Now that we have an idea how docker isolates processes, we should dig a little more to find out how is this not resource intensive? As we 
+            Now that we have an idea of how Docker isolates processes, let’s dig a little deeper to understand why it’s not <span class="highlight-purple">resource-intensive</span>. You might wonder, considering Docker images use operating systems like Ubuntu (as seen in our previous example of Docker images and Dockerfiles), wouldn’t that generate a significant load on our system’s resources?
+            <br><br>
+            Well, here’s the key: Docker doesn’t install a separate OS kernel. Instead, it shares the kernel from your local system for resource management. The only components that get installed are the minimal user-space elements, which include the necessary system libraries, commands, utilities, configuration files, and some background services like daemons. These user-space components run outside the kernel, which significantly reduces the resource footprint compared to virtual machines.
+            <br><br>
+          To build and run a container, use the command: <span class="highlight-purple">docker run -d -p <i>hostport:containerport</i> --name <i>name_of_container</i> <i>image_name</i></span>, where -d runs the container in detached mode (in the background), -p specifies port mapping (which port of the host will map to which port of the container), and the --name flag assigns a name to the container. You can skip the --name flag, and Docker will assign a unique, random name for the container.
+            <br><br>
+            The rest two issues which we are yet to find out if Docker is able to solve are Scaling, DevOps practices. Let's go.      <br><br>
+            Fast and efficient <span class="highlight-purple">Scaling</span> in docker is possible with Docker compose, a tool to manage mutiple containers which benifits if anyone seeking to implement multi-tier application(which involves backend services, databases,etc) using docker or wants to scale its applications to manage high traffic.
+            <br><br>
+            In <span class="highlight-purple">DevOps</span>, along with scaling and environmental inconsistency, managing <span class="highlight-purple">CI/CD</span> pipeline was a challenge, in which two of them we have already discussed how docker solves them. Docker allows you to streamline your CI/CD process. Every time a developer pushes new code, the CI pipeline automatically builds a new Docker image of the application, runs tests inside the container, and pushes the tested image to a container registry. From there, CD tools can quickly deploy the container to any environment, whether on cloud platforms like AWS, GCP, or Kubernetes clusters. Other tools like Jenkins, Ansible, Terraform further reduces manual work on CI/CD pipelines making the process more <span class="highlight-purple">productive</span>.
+
+            <br><br>
+            Thus, containerization is indeed important, and due to its user-friendly interface and strong community support, Docker has proven to be a highly useful tool these days. Docker indeed has many limitations for which other containerisation tools can be a good replacement but again, that depends upon the goal and preferences.
+            <br><br>
+            A small <span class="highlight">suggestion</span>, if you want to try docker, Docker's documentations has done a very good job. Look for the sections <span class="highlight-purple">"Guide"</span> which specifically for concepts and introduction with docker utilities, <span class="highlight-purple">"Reference"</span> for CLI utilities and commands with proper explanation and <span class="highlight-purple">"Manuals"</span> for deep dive. <span class="highlight-purple">Happy exploring!</span>
+          </div>
+          <br>
+          <div class="author-section author-section-border">
+            <div class="footer-img-section">
+              <img class="footer-img" src="static/images/profile2.png">
+            </div>
+            <div class="author-intro">
+              <b>About Author:</b><br><b>Sinjini Banerjee</b><br><b>Cloud Engineer Intern at Nervescape LLP</b>
+            </div>
           </div>
       </div>
         <div class="center"><br><br><br> © Copyright 2024. All right Reserved.</div>

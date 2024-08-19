@@ -10,7 +10,7 @@ body{
 .main-talk{
   display: grid;
   grid-template-columns: 1fr 4fr 1fr;
-  grid-template-rows: 1fr 9fr;
+  grid-template-rows: 1fr 11fr;
 }
 
 .section1{
@@ -74,6 +74,37 @@ body{
  font-weight: bold;
  color: #718add;
 
+}
+
+.author-section{
+  display: grid;
+  grid-template-columns: 1fr 2fr 4fr;
+  grid-template-rows: 1fr;
+ 
+}
+.author-section-border{
+  border-top: 2px solid rgba(113,138,221,0.5);
+}
+.footer-img-section{
+  grid-column-start: 1;
+  grid-column-end: 1; 
+  padding:20px;
+}
+
+.footer-img{
+  border-radius: 10%;
+  height: 100px;
+  width: 100px;
+  padding: 5px;
+
+}
+.author-intro{
+  color: white;
+  padding-top: 24px;
+  font-size: clamp(0.7rem, 0.9vw, 0.9rem);
+  grid-column-start: 2;
+  grid-column-end: 3;
+  text-align:left;
 }
 .short-content{
   font-size: clamp(8px, 15px, 15px);
