@@ -163,6 +163,7 @@ tree ul {
 
 a{
   text-decoration:none;
+  color: white;
 }
 a:visited {
   text-decoration: none;
@@ -171,6 +172,12 @@ a:visited {
 
 a:hover {
   color: #718add ;
+}
+
+.no-bullets {
+  list-style-type: none; /* Removes bullets */
+  padding-left: 0; /* Removes the default indentation */
+  margin: 0; /* Removes any default margin */
 }
 
 
