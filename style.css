@@ -64,6 +64,7 @@ body{
 
 }
 
+
 .highlight{
   font-weight: bold;
   /*color: #718add;*/
@@ -222,6 +223,6 @@ a:hover {
   }
 
   code{
-    font-size: clamp(0.7rem, 0.9vw, 0.9rem);
+    font-size: clamp(0.8rem, 1.2vw, 1rem); /* Min 0.8rem, scales with viewport width, max 1rem */
   }
 }
