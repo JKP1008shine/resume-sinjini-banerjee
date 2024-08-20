@@ -222,7 +222,7 @@ a:hover {
     padding: 5px;
   }
 
-  code{
-    font-size: clamp(1rem, 1.5vw, 2rem); /* Min 0.8rem, scales with viewport width, max 1rem */
+  .code{
+    font-size: clamp(0.8rem, 1.5vw, 2rem); /* Min 0.8rem, scales with viewport width, max 1rem */
   }
 }
