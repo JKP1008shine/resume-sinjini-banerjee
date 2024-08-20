@@ -119,7 +119,7 @@ VMs use OS images (e.g., .iso files), which include a bootloader, kernel, filesy
           Let’s say you've developed a Python project on your Ubuntu server, but your friend has a Windows machine with a different version of Python. No worries—just share the Docker image you’ve built. It includes dependencies like Ubuntu, Python, and the necessary commands to install the required packages. All your friend has to do is run the image and boom! The Python application is now running on your friend's machine, without the need for a separate local system or VM for Ubuntu, or installing a different Python version. This provides a solution for <span class="highlight-purple">environmental inconsistency</span>. Due to portable in nature we can use this image build and run the containers in multiple systems.
           <br><br>
           Docker images can be pulled from docker registery (the site is called Docker hub) or can be manually created using Dockerfile.
-          <pre class="highlight-purple content-sub">
+          <pre class="highlight-purple content-sub code">
                 FROM ubuntu:latest
                 WORFKDIR /app 
                 RUN apt-get update && \
