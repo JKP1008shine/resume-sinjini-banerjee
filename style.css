@@ -221,5 +221,8 @@ a:hover {
     padding: 5px;
   }
 
-
+  code{
+    font-size: clamp(0.7rem, 0.9vw, 0.9rem);
+ ;
+  }
 }
