@@ -97,19 +97,44 @@ To create your own image, you have to write a Dockerfile.txt first. By default o
         <div class="content-sub">
           The key players working behind the scenes to ensure your containerization experience goes smoothly are:
           <br>
-            <br><br>
-            A small <span class="highlight-purple">suggestion</span>, if you want to try docker, <a class="highlight" href="https://docs.docker.com/">Docker's documentations</a> has done a very good job. Look for the sections <span class="highlight-purple">"Guide"</span> which specifically for concepts and introduction with docker utilities, <span class="highlight-purple">"Reference"</span> for CLI utilities and commands with proper explanation and <span class="highlight-purple">"Manuals"</span> for deep dive. <span class="highlight-purple">Happy exploring!</span>
-          </div>
+          <ul>
+            <li>Docker Client</li>
+            <li>Docker API</li>
+            <li>Docker Daemon</li>
+          </ul>
           <br>
-          <div class="author-section author-section-border">
+          Let’s explore how they work.
+          <br><br>
+          The Docker Client is the tool you and I interact with. We communicate with the Docker Client by writing commands.
+          <br><br>
+          For example, when you run docker pull nginx in your terminal, you’re telling the Docker Client (also known as Docker CLI), "Hey, I need to pull an Nginx image from Docker Hub." The Docker CLI immediately interacts with the Docker API, generating an HTTP request and sending it to the Docker Daemon. The Docker Daemon, now in the spotlight, is responsible for performing the main tasks, whether it’s building an image from a Dockerfile, pulling an image from the Docker registry, running, stopping, or deleting containers.
+          <br><br>
+          In this case, the Docker Daemon pulls the image from the Docker Registry, which is Docker Hub—the remote storage where Docker images are stored for users as requested.
+          <br><br>
+          But remember, no major role is played alone; it’s teamwork that makes it happen. The Docker Daemon is further helped by our local system. As we learned in the previous post, Docker shares the kernel of the local system to get the work done instead of installing a kernel each time, preventing resource intensiveness. By sharing the kernel, it uses some of the kernel's features, such as creating Namespaces, Cgroups, and Unified Filesystem. We will touch on these concepts briefly.
+          <ul>
+            <li>Namespace: This feature helps each container run in isolation from each other and the host system. There are several types of namespaces, such as PID namespace, which provides each container with its own PID namespace so that every process running in each container can communicate with each other but stays isolated from processes of other containers. NET namespace provides each container with its own network stack, including IP addresses, routing tables, network interfaces, and configuration. IPC namespace isolates memory and semaphores, and there are more such namespaces.</li>
+            <li>Cgroups (Control Groups): These manage and limit the resource usage of processes. Docker uses Cgroups to limit CPU, memory, and I/O resources for each container, allocate resources based on priority, and monitor resource consumption to prevent resource starvation.</li>
+            <li>Union Filesystem: Docker uses a layered filesystem. A layered filesystem like UnionFS helps manage these layered images efficiently. Changes are written to a writable layer, while the base layers remain read-only. UnionFS reduces duplication by sharing common files among different containers and images.</li>
+          </ul>  
+            <br><br>
+The kernel’s security features also enhance the security and isolation of the containers.
+            <br><br>
+(Whistle sound!) Time to come out of the water now; enough of our deep dive. We really went deep to understand images and layers in Docker. We also learned about the key players working behind the scenes in the Docker show.
+            <br><br>
+We’ve done pretty well so far, right? Hope we can catch up soon in our next post. Until then, keep learning and exploring containerization. Let me know if you discover anything new that I might have missed. Again, don’t just read, but "DO THE THING!" Use <a class="highlight" href="https://docs.docker.com/">Docker's documentations</a>  to get started.
+            <br><br>
+Happy Exploring!
+          <br><br>
+        </div>
+        <div class="author-section author-section-border">
             <div class="footer-img-section">
               <img class="footer-img" src="static/images/profile2.png">
             </div>
             <div class="author-intro">
               <b>About Author:</b><br><b>Sinjini Banerjee</b><br><b>Cloud Engineer Intern at Nervescape LLP</b>
             </div>
-          </div>
-      </div>
+        </div>
         <div class="center"><br><br><br> © Copyright 2024. All right Reserved.</div>
         <div class="center">
           <p id="lastUpdated"></p>
