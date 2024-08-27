@@ -10,7 +10,7 @@ body{
 .main-talk{
   display: grid;
   grid-template-columns: 1fr 4fr 1fr;
-  grid-template-rows: 1fr 12fr;
+  grid-template-rows: 1fr 8fr;
 }
 
 .section1{
@@ -160,6 +160,11 @@ tree ul {
 .img-docker{
     height: 150px;
     width: 350px;
+}
+
+.img-docker-2 {
+  height: 264px;
+  width: 430px;
 }
 
 a{
