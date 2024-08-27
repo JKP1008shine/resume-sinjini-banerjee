@@ -42,15 +42,15 @@
         </div>
         <br>
         <div class="content-sub highlight">
-          <span class="highlight-purple" id="scenario 1"><b>Scenario 1</b></span>
+          <span class="highlight-purple" id="scenario 1"><b>Method 1: Pulling the Image from Docker Hub</b></span>
         </div>
         <br>
         <div class="content-sub">
-          You have two Python applications that you want to run on your local system. The Python version on your system is 3.10, but one application requires Python 3.7 and the other requires Python 3.8.
-You think, "Let’s give it a try. What if it runs anyway?" You attempt to run the first application, but it throws an error: "RuntimeError: This application requires Python 3.7 or above. Current version: 3.10."
-          Sad<span class="highlight-purple"> :(</span><br><br>
-You decide to downgrade your Python version to 3.7. Now it works for the first application, but what about the second application? Upgrading to Python 3.8? While this might work once, you can't run both applications simultaneously on your system.
-          <br> <br>Wait! You still have a comeback left, you might consider using Python virtual environments. <br><br>While virtual environments like venv or pyenv can help manage different Python versions and prevent package conflicts, they can't solve problems related to OS differences. Sometimes code that runs fine on your system fails on a colleague’s system due to differences in OS and system libraries. This issue is not unique to Python; other languages like C/C++, Go, Rust, and Node.js face similar challenges. Although these languages have their own methods for managing packages and versions, the problem of OS and system library differences remains.
+          Type the following command in your terminal: <span class="highlight-purple"> <b>docker pull nginx</b></span>
+          <br><br>
+          <b>Note:</b> You must have Docker properly installed on your system. I prefer CLI over GUI. Come on, commands are the coolest!
+          <br><br>
+          Once you have pulled the image, you can check it by running:<span class="highlight-purple"> <b> docker images</b></span> or <span class="highlight-purple">docker image ls</span>
         </div>
         <br>
         <div class="content-sub">
