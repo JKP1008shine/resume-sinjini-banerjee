@@ -51,28 +51,32 @@
           <b>Note:</b> You must have Docker properly installed on your system. I prefer CLI over GUI. Come on, commands are the coolest!
           <br><br>
           Once you have pulled the image, you can check it by running:<span class="highlight-purple"> <b> docker images</b></span> or <span class="highlight-purple">docker image ls</span>
-        </div>
+          <br><br>
+        The output will show your image under the REPOSITORY column, with the tag 'latest.' Every image has a unique ID, unless you have two names for the same image. You can also check when it was created and the size of the image. 
+       </div> 
         <br>
-        <div class="content-sub">
-          <b>The Problems</b>
-        </div>
-        <div class="content-sub">
-          The issues we just saw are:
-          <br>
-          <ul>
-            <li><b><span class="highlight-purple">Environmental Inconsistency:</b></span> Applications behave differently in production, development, and testing environments due to differences in system configuration, libraries, and OS.</li>
-            <li><b><span class="highlight-purple">Lack of Isolation:</b></span> Applications with different versions of dependencies cannot be run simultaneously on a single system.</li>
-          </ul>
-        </div>
-        <br>
-        <div class="content-sub highlight-purple highlight" id="scenario 2">
-          <b>Scenario 2</b>
+       <div class="content-sub highlight-purple highlight">
+          <b>Method 2: Building Your Own Image</b>
         </div>
         <div class="content-sub">
           <br>
-          On any given day, if you choose to use <span class="highlight-purple">VMs (virtual machines)</span> to run applications with different dependencies to achieve isolation on a single local system, think again!<br><br>
-          It's true that VMs can help prevent the problem we face regarding system dependencies and differences in OSs. However, it’s a very resource-intensive solution.<br><br>
-VMs use OS images (e.g., .iso files), which include a bootloader, kernel, filesystems, packages, etc., to load an operating system inside your local system that already has its own OS running. Essentially, VMs give us the ability to run multiple operating systems inside a single local system, but using VMs solely to run applications is not an efficient solution. Just imagine: your CPU and RAM are now being utilized by the kernel and system programs of both your local system and the VMs simultaneously. Therefore, running multiple VMs just to support applications is resource-intensive. This can significantly degrade the performance of both your system and the applications, placing a heavy load on your resources.
+          This is a very useful method when you want to create your own image for an application that has specific dependencies and will be unavailable on Docker Hub unless you push your image there so others can pull it when needed.
+
+To create your own image, you have to write a Dockerfile.txt first. By default or convention, we call it exactly "Dockerfile.txt," but you can name it anything.
+          <br><br>
+          Here’s an example:
+          <br><br>
+          <pre class="highlight-purple content-sub code">
+                FROM ubuntu:latest
+                RUN apt-get update && apt-get install -y nginx
+                EXPOSE 80
+                CMD ["nginx", "-g", "daemon off;"]
+          </pre>
+          Say you have a Windows host system, but you want to run Nginx inside an Ubuntu-based environment. The instruction FROM ubuntu:latest ensures you have an Ubuntu base image.
+          <br><br>
+          This creates the first layer of the image. Yes, layers! Every configuration and modification will be added as layers in the image. The next instruction, RUN apt-get update && apt-get install -y nginx, specifies that after the image has Ubuntu ready, it should come with the necessary modifications and tools before becoming a running container. Specifically, this command updates the packages and installs Nginx. This instruction will also create a new layer above the previous one.
+        <br><br>
+        EXPOSE 80 is the third instruction in our Dockerfile, indicating that the application will listen to port 80 inside the container. The EXPOSE command also creates a layer above the previous one, but it only adds metadata about the port, unlike the RUN command, which modifies files like /var/lib/apt/lists/ in the image.
         </div>
         <br>
         <div class="content-sub">
@@ -117,17 +121,7 @@ VMs use OS images (e.g., .iso files), which include a bootloader, kernel, filesy
           Let’s say you've developed a Python project on your Ubuntu server, but your friend has a Windows machine with a different version of Python. No worries—just share the Docker image you’ve built. It includes dependencies like Ubuntu, Python, and the necessary commands to install the required packages. All your friend has to do is run the image and boom! The Python application is now running on your friend's machine, without the need for a separate local system or VM for Ubuntu, or installing a different Python version. This provides a solution for <span class="highlight-purple">environmental inconsistency</span>. Due to portable in nature we can use this image build and run the containers in multiple systems.
           <br><br>
           Docker images can be pulled from docker registery (the site is called Docker hub) or can be manually created using Dockerfile.
-          <pre class="highlight-purple content-sub code">
-                FROM ubuntu:latest
-                WORFKDIR /app 
-                RUN apt-get update && \
-                    apt-get install -y python3 python3-pip &&\
-                COPY requirements.txt .
-                RUN pip3 install --no-cache-dir -r requirements.txt 
-                COPY . .
-                CMD ["python3", "app.py"]
-              </pre>
-          <div class="content-sub">
+                   <div class="content-sub">
             Above is an example of Dockerfile to build an image that will run a python application by installing all the required packages in a ubuntu base image, we will dive deep into Dockerfile and Docker images in our upcomming talks!
             <br><br>
             Once you have saved the file with the name "Dockerfile" run the command
