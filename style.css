@@ -209,6 +209,12 @@ a:hover {
     grid-template-rows: auto auto auto; /* Adjust rows to auto height */
   }
 
+  .main-talk2 {
+    grid-template-columns: 1fr; /* Single column layout */
+    grid-template-rows: auto auto auto; /* Adjust rows to auto height */
+  }
+
+
   .section1, .section2 {
     grid-column-start: 1;
     grid-column-end: 1;
