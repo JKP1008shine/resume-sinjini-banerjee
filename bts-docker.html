@@ -77,78 +77,26 @@ To create your own image, you have to write a Dockerfile.txt first. By default o
           This creates the first layer of the image. Yes, layers! Every configuration and modification will be added as layers in the image. The next instruction, RUN apt-get update && apt-get install -y nginx, specifies that after the image has Ubuntu ready, it should come with the necessary modifications and tools before becoming a running container. Specifically, this command updates the packages and installs Nginx. This instruction will also create a new layer above the previous one.
         <br><br>
         EXPOSE 80 is the third instruction in our Dockerfile, indicating that the application will listen to port 80 inside the container. The EXPOSE command also creates a layer above the previous one, but it only adds metadata about the port, unlike the RUN command, which modifies files like /var/lib/apt/lists/ in the image.
+          <br><br>
+          Once EXPOSE 80 creates its layer, the last instruction, CMD ["nginx", "-g", "daemon off;"], specifies that once the image is built and a running container is created, the command that will run is nginx -g daemon off;. This command ensures that Nginx runs as a foreground process, not as a background process. This will also create a layer, similar to the EXPOSE instruction, adding metadata about the command the container will execute once it's built from that image.
+          <br><br>
+          The reason for delving this deep into the layers of a Docker image is to make you aware of how the sequence of instructions inside the Dockerfile matters. Also, you might be curious to know how a text file like a Dockerfile can bring about so many technical changes and be responsible for creating a container.
+          <br><br>
+          I will discuss more about the behind-the-scenes of images and their layers in the next post.
+          <br><br>
+          So now that you know how layers of images are created once we execute the Dockerfile with the command:
+          <span class="highlight-purple">docker build -t <tag:version> .</span>
+          <br><br>
+          Once this image is built from a Dockerfile or pulled from the registry, you can create a running container out of it exactly the way you wanted. In this journey from creating a Dockerfile for building an image or pulling a built image and running a container from it, we run many commands or follow many steps. But how do they work in the background? Let’s discuss.
         </div>
-        <br>
-        <div class="content-sub">
-          <b>The Problems</b>
-        </div>
-        <div class="content-sub">
-          <ul>
-            <li><b><span class="highlight-purple">Resource Intensive</span></b>: Even though VMs can provide isolation by running different OSs in a single system, it will be very resource intensive.</li>
-          </ul>
-        </div>
-        <br>
-        <div class="content-sub highlight-purple highlight" id="scenario 3">
-            <b>Scenario 3</b>
-        </div> 
-        <br>
-         <div class="content-sub">
-          Say your application has been running successfully on your server, but now it’s gaining popularity. With increasing users, you start facing performance issues. So, what’s the solution? Do you simply throw more money at the problem by adding more servers? While that might seem like a quick fix, it also involves provisioning new servers, installing all necessary dependencies, and deploying the application multiple times. This process can become time-consuming, expensive, and inefficient, especially as user demand continues to grow.
-          <br>
-          <br>
-          Apart from scaling, if you are using traditional DevOps practices to integrate your code, building, testing and deploying them which lacks automation will cause higher risk of human error, slower feedback loops, less frequent releases, etc.
-         </div>
-        <br>
-        <div class="content-sub">
-          <b>The Problems</b>
-        </div>
-         <div class="content-sub">
-           <ul>
-             <li><b><span class="highlight-purple">Scaling</span></b>: Even though VMs can provide isolation by running different OSs in a single system, it will be very resource intensive.</li>
-            <li><b><span class="highlight-purple">DevOps practices</span></b>: Manual Techniques prevent productivity.</li>
-           </ul>
-         </div>
         <br>
         <div class="content-head highlight-purple" id="how_docker_helps">
-          <b> How Docker helps???</b>
+          <b>Behind The Scenes</b>
         </div>
         <br>
         <div class="content-sub">
-          Now that we have discussed some of the problems in detail, let's look at how Docker addresses them.
+          The key players working behind the scenes to ensure your containerization experience goes smoothly are:
           <br>
-          Docker has a concept of <span class="highlight-purple">images</span>,  which are like blueprints or plans for real-world projects, containing everything needed to make the project a reality. Docker images specifies the requirements with the exact versions of the dependencies making the project error free.
-          <br><br>
-          Let’s say you've developed a Python project on your Ubuntu server, but your friend has a Windows machine with a different version of Python. No worries—just share the Docker image you’ve built. It includes dependencies like Ubuntu, Python, and the necessary commands to install the required packages. All your friend has to do is run the image and boom! The Python application is now running on your friend's machine, without the need for a separate local system or VM for Ubuntu, or installing a different Python version. This provides a solution for <span class="highlight-purple">environmental inconsistency</span>. Due to portable in nature we can use this image build and run the containers in multiple systems.
-          <br><br>
-          Docker images can be pulled from docker registery (the site is called Docker hub) or can be manually created using Dockerfile.
-                   <div class="content-sub">
-            Above is an example of Dockerfile to build an image that will run a python application by installing all the required packages in a ubuntu base image, we will dive deep into Dockerfile and Docker images in our upcomming talks!
-            <br><br>
-            Once you have saved the file with the name "Dockerfile" run the command
-            <span class="highlight-purple">docker build -t python:ubuntu .</span>
-            The above command will create an image out of it, generating an image id. In case you have named your Dockerfile something else, you can use the below command -
-            <br><span class="highlight-purple">docker build -f <i>custom_name_of_dockerfile</i> -t <i>name_of_your_image</i> .</span>
-            <br><br>
-             
-            Once the image is built, it's time to see our application running seamlessly, and for that, we need to create a running container. 
-            <span class="highlight-purple"><b>What is a container?</b></span> Like a container that stores stuff? 
-            Yes, but this container holds your application and its dependencies, and it can also run the application. It’s essentially a live container! 
-            Let's recall what else a container can do—it separates things out and provides 
-            <span class="highlight-purple"><b>isolation</b></span>. Docker containers can run different applications with different dependencies and versions in isolation, preventing any kind of conflicts on a single system. Infact if these containers are supposed to run same applications with same dependencies just use that same image to create multiple similar conatainers, cool I know.
-            <br><br>
-            Now that we have an idea of how Docker isolates processes, let’s dig a little deeper to understand why it’s not <span class="highlight-purple">resource-intensive</span>. You might wonder, considering Docker images use operating systems like Ubuntu (as seen in our previous example of Docker images and Dockerfiles), wouldn’t that generate a significant load on our system’s resources?
-            <br><br>
-            Well, here’s the key: Docker doesn’t install a separate OS kernel. Instead, it shares the kernel from your local system for resource management. The only components that get installed are the minimal user-space elements, which include the necessary system libraries, commands, utilities, configuration files, and some background services like daemons. These user-space components run outside the kernel, which significantly reduces the resource footprint compared to virtual machines.
-            <br><br>
-          To build and run a container, use the command: <span class="highlight-purple">docker run -d -p <i>hostport:containerport</i> --name <i>name_of_container</i> <i>image_name</i></span>, where -d runs the container in detached mode (in the background), -p specifies port mapping (which port of the host will map to which port of the container), and the --name flag assigns a name to the container. You can skip the --name flag, and Docker will assign a unique, random name for the container.
-            <br><br>
-            The rest two issues which we are yet to find out if Docker is able to solve are Scaling, DevOps practices. Let's go.      <br><br>
-            Fast and efficient <span class="highlight-purple">Scaling</span> in docker is possible with Docker compose, a tool to manage mutiple containers which benifits if anyone seeking to implement multi-tier application(which involves backend services, databases,etc) using docker or wants to scale its applications to manage high traffic.
-            <br><br>
-            In <span class="highlight-purple">DevOps</span>, along with scaling and environmental inconsistency, managing <span class="highlight-purple">CI/CD</span> pipeline was a challenge, in which two of them we have already discussed how docker solves them. Docker allows you to streamline your CI/CD process. Every time a developer pushes new code, the CI pipeline automatically builds a new Docker image of the application, runs tests inside the container, and pushes the tested image to a container registry. From there, CD tools can quickly deploy the container to any environment, whether on cloud platforms like AWS, GCP, or Kubernetes clusters. Other tools like Jenkins, Ansible, Terraform further reduces manual work on CI/CD pipelines making the process more <span class="highlight-purple">productive</span>.
-
-            <br><br>
-            Thus, containerization is indeed important, and due to its user-friendly interface and strong community support, Docker has proven to be a highly useful tool these days. Docker indeed has many limitations for which other containerisation tools can be a good replacement but again, that depends upon the goal and preferences.
             <br><br>
             A small <span class="highlight-purple">suggestion</span>, if you want to try docker, <a class="highlight" href="https://docs.docker.com/">Docker's documentations</a> has done a very good job. Look for the sections <span class="highlight-purple">"Guide"</span> which specifically for concepts and introduction with docker utilities, <span class="highlight-purple">"Reference"</span> for CLI utilities and commands with proper explanation and <span class="highlight-purple">"Manuals"</span> for deep dive. <span class="highlight-purple">Happy exploring!</span>
           </div>
