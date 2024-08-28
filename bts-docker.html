@@ -15,20 +15,19 @@
          Meet Sinjini<span class="short-content"> (she/her) pronounced as [SHIN-jee-nee]</span>
 </div>-->
        <div class="content-sub"> 
-               In the previous post, we tried to understand how containerization has helped us, and we discussed the problems we used to face with traditional techniques.
+          In the <span class="highlight-purple">previous post</span>, we tried to understand how containerization has helped us, and we discussed the problems we used to face with <span class="highlight-purple">traditional techniques</span>.
           <br> <br>
-            Today, we will focus on how Docker does it. Come on! Don’t tell me you haven’t thought, 'How does Docker make all of this look so easy?' even once. Well, you’re not alone. Docker can isolate an entire environment for an application, and the fact that it’s so lightweight and doesn’t require the hassle of installing anything is indeed fascinating.
+          Today, we will focus on how Docker does it. Come on! Don’t tell me you haven’t thought, <i><b>'How does Docker make all of this look so easy?' even once.</b></i> Well, you’re not alone. Docker can isolate an entire environment for an application, and the fact that it’s so lightweight and doesn’t require the hassle of installing anything is indeed fascinating.
           <br><br>
-            Let’s dive into a scenario to know how...
+          Let’s dive into a scenario to know how<span class="highlight-purple">...</span>
         </div>
         <br>
         <div class="content-head">
           <span class="highlight-purple">Quick links</span>
           <ul class="content-sub">
-            <li><a href="#scenario 1">Environmental inconsistency and Isolation issues </a></li>
-            <li><a href="#scenario 2">Resource Intensive</a></li>
-            <li><a href="#scenario 3">Scaling and other DevOps practices</a></li>
-            <li><a href="#how_docker_helps">How docker helps</a></li>
+            <li><a href="#scenario 1">Pulling the Image from Docker hub </a></li>
+            <li><a href="#building_image">Building your own image</a></li>
+            <li><a href="#bts">Behind The Scenes</a></li>
           </ul>
         </div>
         <br>
@@ -38,7 +37,7 @@
         <div class="content-sub">
           Say you want to run Nginx at port 8081 on your host system in isolation. So, you choose Docker. Before you create an isolated environment in your local system for your Nginx, you need to get an image. The concept of an image is very interesting here. Since images involve technical details like snapshots and deltas, which can be a bit off-topic, we will discuss this in our upcoming post.
           <br><br>
-          For now, it’s enough to know that an image is like a blueprint, similar to a construction plan for a building. These images can be pulled directly from Docker Registry, or you can build your own image.
+          For now, it’s enough to know that an image is like a <span class="highlight-purple">blueprint</span>, similar to a construction plan for a building. These images can be <span class="highlight-purple">pulled directly</span> from Docker Registry, or you can <span class="highlight-purple">build your own image.</span>
         </div>
         <br>
         <div class="content-sub highlight">
@@ -55,14 +54,14 @@
         The output will show your image under the REPOSITORY column, with the tag 'latest.' Every image has a unique ID, unless you have two names for the same image. You can also check when it was created and the size of the image. 
        </div> 
         <br>
-       <div class="content-sub highlight-purple highlight">
+       <div class="content-sub highlight-purple highlight" id="building_image">
           <b>Method 2: Building Your Own Image</b>
         </div>
         <div class="content-sub">
           <br>
-          This is a very useful method when you want to create your own image for an application that has specific dependencies and will be unavailable on Docker Hub unless you push your image there so others can pull it when needed.
+          This is a very useful method when you want to <span class="highlight-purple">create your own image</span> for an application that has specific dependencies and will be unavailable on Docker Hub unless you push your image there so others can pull it when needed.
 
-To create your own image, you have to write a Dockerfile.txt first. By default or convention, we call it exactly "Dockerfile.txt," but you can name it anything.
+          To create your own image, you have to write a Dockerfile.txt first. By default or convention, we call it exactly <span class="highlight-purple">"Dockerfile.txt,"</span> but you can name it anything.
           <br><br>
           Here’s an example:
           <br><br>
@@ -74,30 +73,30 @@ To create your own image, you have to write a Dockerfile.txt first. By default o
           </pre>
           Say you have a Windows host system, but you want to run Nginx inside an Ubuntu-based environment. The instruction FROM ubuntu:latest ensures you have an Ubuntu base image.
           <br><br>
-          This creates the first layer of the image. Yes, layers! Every configuration and modification will be added as layers in the image. The next instruction, RUN apt-get update && apt-get install -y nginx, specifies that after the image has Ubuntu ready, it should come with the necessary modifications and tools before becoming a running container. Specifically, this command updates the packages and installs Nginx. This instruction will also create a new layer above the previous one.
+          This creates the first layer of the image. Yes, <span class="highlight-purple">layers!</span> Every configuration and modification will be added as layers in the image. The next instruction, <span class="highlight-purple">RUN apt-get update && apt-get install -y nginx</span>, specifies that after the image has Ubuntu ready, it should come with the necessary modifications and tools before becoming a running container. Specifically, this command updates the packages and installs Nginx. This instruction will also create a new layer above the previous one.
         <br><br>
-        EXPOSE 80 is the third instruction in our Dockerfile, indicating that the application will listen to port 80 inside the container. The EXPOSE command also creates a layer above the previous one, but it only adds metadata about the port, unlike the RUN command, which modifies files like /var/lib/apt/lists/ in the image.
+          <span class="highlight-purple">EXPOSE 80</span> is the third instruction in our Dockerfile, indicating that the application will listen to port 80 inside the container. The EXPOSE command also creates a layer above the previous one, but it <span class="highlight-purple">only adds metadata</span> about the port, unlike the RUN command, which <span class="highlight-purple">modifies files like /var/lib/apt/lists/ in the image.</span>
           <br><br>
-          Once EXPOSE 80 creates its layer, the last instruction, CMD ["nginx", "-g", "daemon off;"], specifies that once the image is built and a running container is created, the command that will run is nginx -g daemon off;. This command ensures that Nginx runs as a foreground process, not as a background process. This will also create a layer, similar to the EXPOSE instruction, adding metadata about the command the container will execute once it's built from that image.
+          Once <span class="highlight-purple">EXPOSE 80</span> creates its layer, the last instruction, <span class="highlight-purple">CMD ["nginx", "-g", "daemon off;"]</span>, specifies that once the image is built and a running container is created, the command that will run is nginx -g daemon off;. This command ensures that Nginx runs as a <span class="highlight-purple">foreground process, not as a background process</span>. This will also create a layer, similar to the EXPOSE instruction, adding metadata about the command the container will execute once it's built from that image.
           <br><br>
           The reason for delving this deep into the layers of a Docker image is to make you aware of how the sequence of instructions inside the Dockerfile matters. Also, you might be curious to know how a text file like a Dockerfile can bring about so many technical changes and be responsible for creating a container.
           <br><br>
-          I will discuss more about the behind-the-scenes of images and their layers in the next post.
+          I will discuss more about the <span class="highlight-purple">images and their layers</span> in the next post.
           <br><br>
           So now that you know how layers of images are created once we execute the Dockerfile with the command:
           <span class="highlight-purple">docker build -t <tag:version> .</span>
           <br><br>
-          Once this image is built from a Dockerfile or pulled from the registry, you can create a running container out of it exactly the way you wanted. In this journey from creating a Dockerfile for building an image or pulling a built image and running a container from it, we run many commands or follow many steps. But how do they work in the background? Let’s discuss.
+          Once this image is built from a Dockerfile or pulled from the registry, you can create a running container out of it exactly the way you wanted. In this journey from creating a Dockerfile for building an image or pulling a built image and running a container from it, we run many commands or follow many steps. But <span class="highlight-purple"><b>how do they work in the background?</b></span> Let’s discuss.
         </div>
         <br>
-        <div class="content-head highlight-purple" id="how_docker_helps">
-          <b>Behind The Scenes</b>
+        <div class="content-head highlight-purple" id="bts">
+          <b>Behind The Scenes: How they work?</b>
         </div>
         <br>
         <div class="content-sub">
           The key players working behind the scenes to ensure your containerization experience goes smoothly are:
           <br>
-          <ul>
+          <ul class="highlight-purple">
             <li>Docker Client</li>
             <li>Docker API</li>
             <li>Docker Daemon</li>
@@ -105,24 +104,26 @@ To create your own image, you have to write a Dockerfile.txt first. By default o
           <br>
           Let’s explore how they work.
           <br><br>
-          The Docker Client is the tool you and I interact with. We communicate with the Docker Client by writing commands.
+          The <span class="highlight-purple">Docker Client</span> is the tool <b>You and I interact with.</b> We communicate with the Docker Client <u>by writing commands.</u>
           <br><br>
-          For example, when you run docker pull nginx in your terminal, you’re telling the Docker Client (also known as Docker CLI), "Hey, I need to pull an Nginx image from Docker Hub." The Docker CLI immediately interacts with the Docker API, generating an HTTP request and sending it to the Docker Daemon. The Docker Daemon, now in the spotlight, is responsible for performing the main tasks, whether it’s building an image from a Dockerfile, pulling an image from the Docker registry, running, stopping, or deleting containers.
+          For example, when you run <span class="highlight-purple">docker pull nginx</span> in your terminal, you’re telling the Docker Client (also known as Docker CLI), "Hey, I need to pull an Nginx image from Docker Hub." The Docker CLI immediately interacts with the Docker API, generating an HTTP request and sending it to the Docker Daemon. The <span class="highlight-purple">Docker Daemon</span>, now in the <b>spotlight</b>, is responsible for performing the <b>main tasks</b>, whether it’s building an image from a Dockerfile, pulling an image from the Docker registry, running, stopping, or deleting containers.
           <br><br>
           In this case, the Docker Daemon pulls the image from the Docker Registry, which is Docker Hub—the remote storage where Docker images are stored for users as requested.
           <br><br>
-          But remember, no major role is played alone; it’s teamwork that makes it happen. The Docker Daemon is further helped by our local system. As we learned in the previous post, Docker shares the kernel of the local system to get the work done instead of installing a kernel each time, preventing resource intensiveness. By sharing the kernel, it uses some of the kernel's features, such as creating Namespaces, Cgroups, and Unified Filesystem. We will touch on these concepts briefly.
+          <span class="highlight-purple">But remember, no major role is played alone; it’s teamwork that makes it happen.</span> The Docker Daemon is further helped by our local system. As we learned in the previous post, Docker shares the kernel of the local system to get the work done instead of installing a kernel each time, preventing resource intensiveness. By sharing the kernel, it uses some of the kernel's features, such as creating <b>Namespaces, Cgroups, and Unified Filesystem</b>. We will touch on these concepts briefly.
           <ul>
-            <li>Namespace: This feature helps each container run in isolation from each other and the host system. There are several types of namespaces, such as PID namespace, which provides each container with its own PID namespace so that every process running in each container can communicate with each other but stays isolated from processes of other containers. NET namespace provides each container with its own network stack, including IP addresses, routing tables, network interfaces, and configuration. IPC namespace isolates memory and semaphores, and there are more such namespaces.</li>
-            <li>Cgroups (Control Groups): These manage and limit the resource usage of processes. Docker uses Cgroups to limit CPU, memory, and I/O resources for each container, allocate resources based on priority, and monitor resource consumption to prevent resource starvation.</li>
-            <li>Union Filesystem: Docker uses a layered filesystem. A layered filesystem like UnionFS helps manage these layered images efficiently. Changes are written to a writable layer, while the base layers remain read-only. UnionFS reduces duplication by sharing common files among different containers and images.</li>
-          </ul>  
+            <li><span class="highlight-purple">Namespace:</span> This feature helps each container run in isolation from each other and the host system. There are several types of namespaces, such as PID namespace, which provides each container with its own PID namespace so that every process running in each container can communicate with each other but stays isolated from processes of other containers. NET namespace provides each container with its own network stack, including IP addresses, routing tables, network interfaces, and configuration. IPC namespace isolates memory and semaphores, and there are more such namespaces.</li>
+            <br>
+            <li><span class="highlight-purple">Cgroups (Control Groups):</span> These manage and limit the resource usage of processes. Docker uses Cgroups to limit CPU, memory, and I/O resources for each container, allocate resources based on priority, and monitor resource consumption to prevent resource starvation.</li>
+            <br>
+            <li><span class="highlight-purple">Union Filesystem:</span> Docker uses a layered filesystem. A layered filesystem like UnionFS helps manage these layered images efficiently. Changes are written to a writable layer, while the base layers remain read-only. UnionFS reduces duplication by sharing common files among different containers and images.</li> 
+            <br>
+            <li><span class="highlight-purple">The kernel’s security features</span> also enhance the security and isolation of the containers.</li>
+        </ul>
             <br><br>
-The kernel’s security features also enhance the security and isolation of the containers.
+          <span class="highlight-purple">(Whistle sound!)</span><i>Time to come out of the water now; enough of our deep dive.</i> We really went deep to understand images and layers in Docker. We also learned about the key players working behind the scenes in the Docker show.
             <br><br>
-(Whistle sound!) Time to come out of the water now; enough of our deep dive. We really went deep to understand images and layers in Docker. We also learned about the key players working behind the scenes in the Docker show.
-            <br><br>
-We’ve done pretty well so far, right? Hope we can catch up soon in our next post. Until then, keep learning and exploring containerization. Let me know if you discover anything new that I might have missed. Again, don’t just read, but "DO THE THING!" Use <a class="highlight" href="https://docs.docker.com/">Docker's documentations</a>  to get started.
+          We’ve done pretty well so far, right? Hope we can <span class="highlight-purple">catch up soon in our next post</span>. Until then, keep learning and exploring containerization. Let me know if you discover anything new that I might have missed. Again, don’t just read, but "DO THE THING!" Use <a class="highlight" href="https://docs.docker.com/">Docker's documentations</a>  to get started.
             <br><br>
 Happy Exploring!
           <br><br>
