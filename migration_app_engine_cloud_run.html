@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Migrating from App Engine to Cloud Run</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="main-talk">
+        <div class="section1">
+            <p class="content-head-docker">Moving on from App engine <span class="highlight-purple">for good! </span>
+            </p>
+            <img class="img-migration" src="static/images/migration.png">
+        </div>
+        <div class="section2">
+            <div class="content-sub">
+                It's a common and recommended practice to migrate your App Engine services to <span
+                    class="highlight-purple">Cloud Run</span>, as Google's own documentation states:
+                <blockquote>
+                    <i>“Cloud Run is the latest evolution of Google Cloud Serverless, building on the experience of
+                        running App Engine for more than a decade.”</i>
+                </blockquote>
+                <b>Today we will focus on the <span class="highlight-purple">WHYs and how-tos for migrating to Cloud
+                        Run</span> as your modern serverless platform.</b> Let's get started!
+            </div>
+            <br>
+            <div class="content-head">
+                <span class="highlight-purple">Quick links</span>
+                <ul class="content-sub">
+                    <li><a href="#why_migrate">WHY to Migrate From App Engine to Cloud Run</a></li>
+                    <li><a href="#first_step">First Step: Discovery Phase</a></li>
+                    <li><a href="#getting_started">Getting Started</a></li>
+                    <li><a href="#migrate_standard">Migrating from App Engine Standard</a></li>
+                    <li><a href="#migrate_flexible">Migrating from App Engine Flexible</a></li>
+                </ul>
+            </div>
+            <br>
+
+            <div class="content-head" id="why_migrate">
+                WHY to Migrate From App Engine to Cloud Run
+            </div>
+            <div class="content-sub">
+                Cloud Run serves applications more effectively than traditional App Engine by offering greater
+                flexibility, portability, and control. Here are the core reasons to make the switch:
+                <br><br>
+                <ul>
+                    <li><b><span class="highlight-purple">Scale to Zero:</span></b> App Engine Flexible can’t scale to
+                        zero; Cloud Run scales to zero automatically, saving idle costs.</li>
+                    <li><b><span class="highlight-purple">Container Support:</span></b> App Engine standard doesn’t
+                        support container images; Cloud Run supports both container and source deployments natively.
+                    </li>
+                    <li><b><span class="highlight-purple">Sidecar Architecture:</span></b> App Engine can’t use sidecar
+                        containers; Cloud Run allows sidecars for proxies, logging, metrics, and security agents.</li>
+                    <li><b><span class="highlight-purple">Resource Allocation:</span></b> App Engine lacks granular
+                        CPU/memory control; Cloud Run lets you configure exact resources per service.</li>
+                    <li><b><span class="highlight-purple">Secret Management:</span></b> App Engine’s secret access
+                        requires client libraries; Cloud Run injects secrets directly via environment variables or
+                        volumes.</li>
+                    <li><b><span class="highlight-purple">Global Load Balancing:</span></b> App Engine doesn’t support
+                        global HTTP load balancing natively; Cloud Run integrates perfectly with multi-region global
+                        load balancing.</li>
+                    <li><b><span class="highlight-purple">Granular IAM Control:</span></b> App Engine standard lacks
+                        per-service IAM access; Cloud Run supports fine-grained IAM control per revision.</li>
+                    <li><b><span class="highlight-purple">High Concurrency:</span></b> Provides concurrency requests up
+                        to 80, which is capped at just 10 in traditional App Engine.</li>
+                </ul>
+            </div>
+            <br>
+
+            <div class="content-sub highlight-purple highlight" id="first_step">
+                <b>First Step</b>
+            </div>
+            <div class="content-sub">
+                Before starting the migration, we conduct a discovery phase that involves asking critical questions
+                about the current architecture:
+                <br><br>
+                * What components are part of the current setup?
+                <br>
+                * How do services interact and depend on each other?
+                <br>
+                * How is data stored, accessed, and backed up?
+                <br>
+                * What does the existing network topology look like (VPCs, subnets, firewalls, peering)?
+                <br><br>
+                We also assess IAM roles, access policies, CI/CD pipelines, monitoring, logging, third-party
+                integrations, and compliance requirements (like PCI-DSS or HIPAA). This defines the target architecture
+                and ensures a smooth cutover strategy.
+            </div>
+            <br>
+
+            <div class="content-sub highlight-purple highlight" id="getting_started">
+                <b>Getting Started</b>
+            </div>
+            <div class="content-sub">
+                We begin by enabling the Cloud Run and Artifact Registry APIs, if they aren't already active. Next,
+                check for a user-managed service account specific to Cloud Run. If it doesn't exist, create one and
+                assign the relevant IAM permissions—such as access to Cloud SQL, Secret Manager, etc.—based on your
+                specific application requirements.
+            </div>
+            <br>
+
+            <div class="content-head highlight-purple" id="migrate_standard">
+                <b>Migrating from App Engine Standard</b>
+            </div>
+            <div class="content-sub">
+                Applications in App Engine Standard are deployed directly from source code, meaning there's no mandatory
+                manual containerization steps beforehand. The exact same fluid approach can be leveraged in Cloud Run!
+                <br><br>
+                Cloud Run uses Cloud Buildpacks and Cloud Build to automatically build a container image directly from
+                your source files. If your code repository already contains a functional Dockerfile, Cloud Run will use
+                it automatically.
+                <br><br>
+                To deploy to Cloud Run straight from your source code folder, execute the following command:
+                <pre class="highlight-purple content-sub code">
+                    gcloud run deploy NAME_OF_CLOUD_RUN --source PATH_OF_SOURCE_CODE \
+                    --allow-unauthenticated \
+                    --set-secrets ENV_NAME=SECRET_NAME:latest \
+                    --set-env-vars ENV_NAME="VALUE"
+                </pre>
+                <br>
+                <ul>
+                    <li><b><span class="highlight-purple">--source</span></b>: Points directly to the application’s
+                        source code directory.</li>
+                    <li><b><span class="highlight-purple">--allow-unauthenticated</span></b>: Allows public access to
+                        the Cloud Run service. (Alternatively, use flags to enforce authentication for authorized
+                        users).</li>
+                    <li><b><span class="highlight-purple">--set-secrets</span></b>: Maps an environment variable to a
+                        secure token stored safely inside Secret Manager.</li>
+                    <li><b><span class="highlight-purple">--set-env-vars</span></b>: Maps standard environment variables
+                        directly to configuration values.</li>
+                </ul>
+                <br>
+                After running the command, you'll be prompted for a service name. If prompted to enable missing APIs,
+                select <span class="highlight-purple">y</span> for Yes. Once completed successfully, the output will
+                log:
+                <br><br>
+                <code>Service [your-cloud-run-service-name] revision [your-cloud-run-service-name-00000-xxx] has been deployed and is serving 100 percent of traffic. Service URL: https://sample.run.app</code>
+                <br><br>
+                That indicates that you have successfully migrated your App Engine Standard application into Cloud Run!
+            </div>
+            <br>
+
+            <div class="content-head highlight-purple" id="migrate_flexible">
+                <b>Migrating from App Engine Flexible</b>
+            </div>
+            <div class="content-sub">
+                Like Cloud Run, App Engine Flexible also supports both container-based and source-based deployments. We
+                can manage both methodologies easily:
+                <br><br>
+                <b>Method 1: Container-Based Deployment</b>
+                <br>
+                If you already have access to the underlying container image used by App Engine Flexible, it is usually
+                stored inside a repository within Artifact Registry or Container Registry.
+                <br><br>
+                Copy the image URL path and execute the deployment directly:
+                <pre class="highlight-purple content-sub code">
+                    gcloud run deploy NAME_OF_CLOUD_RUN --image IMAGE_URL \
+                    --allow-unauthenticated \
+                    --set-secrets ENV_NAME=SECRET_NAME:latest \
+                    --set-env-vars ENV_NAME="VALUE"
+                </pre>
+                The <b><span class="highlight-purple">--image</span></b> flag points directly to your pre-built Artifact
+                Registry image path.
+                <br><br>
+                <b>Method 2: Source-Based Deployment</b>
+                <br>
+                For deploying your App Engine Flexible setup via source code, simply follow the exact same Buildpack
+                procedure outlined in the App Engine Standard instructions above.
+                <br><br>
+                And that is how you migrate seamlessly from App Engine to Cloud Run!
+            </div>
+            <br>
+            <div class="author-section author-section-border">
+                <div class="footer-img-section">
+                    <img class="footer-img" src="static/images/profile2.png">
+                </div>
+                <div class="author-intro">
+                    <b>About Author:</b><br><b>Sinjini Banerjee</b><br><b>Cloud Engineer at D3V Technology Solutions</b>
+                </div>
+                <div class="next prev">
+                    <br>
+                    <a
+                        href="https://jkp1008shine.github.io/resume-sinjini-banerjee/bts-docker.html"><b>next:Docker-Backstage</b></a>
+                </div>
+            </div>
+            <div class="center">
+                <p>© Copyright 2024. All right Reserved.</p>
+                <p id="lastUpdated"></p>
+            </div>
+        </div> <!-- closes section2 -->
+    </div> <!-- closes main-talk -->
+    <script>
+        const lastModified = new Date(document.lastModified);
+        const formattedDate = lastModified.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        document.getElementById('lastUpdated').textContent = `Last updated on: ${formattedDate}`;
+    </script>
+</body>
+
+</html>

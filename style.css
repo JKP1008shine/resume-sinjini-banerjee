@@ -10,7 +10,8 @@ body{
 .main-talk{
   display: grid;
   grid-template-columns: 1fr 4fr 1fr;
-  grid-template-rows: 1fr 12fr;
+  /* grid-template-rows: 1fr 12fr; */
+  grid-template-rows: auto auto;
 }
 
 .main-talk2{
@@ -118,8 +119,11 @@ body{
   font-size: clamp(8px, 15px, 15px);
   color: grey;
 }
-.center{
-  text-align: center;
+.center {
+    text-align: center;
+    color: white;
+    margin: 0;
+    padding: 0;
 }
 .tree {
   --spacing: 1rem;
@@ -172,6 +176,12 @@ tree ul {
 .img-docker-2 {
   height: 264px;
   width: 430px;
+}
+
+.img-migration {
+  height: 300px;
+  width: 300px;
+  padding-left: 200px;
 }
 
 a{
