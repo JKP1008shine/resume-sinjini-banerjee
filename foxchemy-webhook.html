@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook in K8s</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+
+    <!-- CHOOSE ONE LAYOUT CLASS:
+         .main        → for index/home page (3 cols: 1fr 3fr 1fr)
+         .main-talk   → for blog/article pages (3 cols: 1fr 4fr 1fr, auto rows)
+         .main-talk2  → for denser article pages (3 cols: 1fr 4fr 1fr, fixed rows)
+    -->
+    <div class="main-talk">
+
+      <!-- ===== SECTION 1: HEADER / IMAGE ===== -->
+      <div class="section1">
+        <!-- Use content-head-docker for centered article titles -->
+        <p class="content-head-docker">Surviving Webhook-Driven Chrome Browser Sessions in K8s</p>
+        <!-- Options: img-docker (150x350), img-docker-2 (264x430), img-migration (300x300), img-profile (150x150 round) -->
+        <img class="webhook" src="static/images/webhook.png" alt="webhook-k8s">
+      </div>
+
+      <!-- ===== SECTION 2: MAIN CONTENT ===== -->
+      <div class="section2">
+
+        <!-- ===== INTRO PARAGRAPH ===== -->
+        <div class="content-sub">
+          In distributed testing environments, <span class="highlight-purple">"browser-farms"</span> running on Google Kubernetes Engine (GKE) are critical for parallel execution. These farms host Chrome headless pods exposing the Chrome DevTools Protocol (CDP) for automation.
+However, a critical architectural challenge arises when the Executor service attempts to attach to specific Chrome sessions via WebSocket (WSS). <br><br>Standard Kubernetes load balancing is stateless, causing Executors to connect to the wrong pod. While standard Ingress solutions usually solve this via session affinity, specific limitations within GKE and the application architecture rendered them unviable.
+This article details the failure of standard Ingress strategies and the implementation of a robust Pod-to-Pod solution using dynamic IP injection.
+
+        </div>
+
+        <!-- ===== QUICK LINKS (optional) ===== -->
+        <br>
+        <div class="content-head">
+          <span class="highlight-purple">Quick links</span>
+          <ul class="content-sub">
+            <li><a href="#the_problem">The Problem: The "Localhost" Trap</a></li>
+            <li><a href="#the_failure_workflow">The Failure Workflow</a></li>
+            <li><a href="#why_standard_ingress_solution_failed">Why Standard Ingress Solutions Failed</a></li>
+            <li><a href="#the_solution">The Solution: Dynamic Pod-IP Injection</a></li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== CONTENT HEADING ===== -->
+        <div class="content-head" id="the_problem">
+          The Problem: The "Localhost" Trap
+        </div>
+        <div class="content-sub">
+          The browser-farm architecture consists of multiple replicas of a Pod running:
+          <ol>
+            <li><span class="highlight-purple">Google Chrome (Headless)</span>: Listening on port 9222.</li>
+            <li><span class="highlight-purple">NGINX: </span>Acting as a reverse proxy.</li>
+            <li><span class="highlight-purple">Executor Service:</span> The client attempting to control the browser.</li>
+          </ol>
+        </div>
+        <br>
+
+        <!-- ===== HIGHLIGHTED SUB-HEADING ===== -->
+        <div class="content-sub highlight">
+          <span class="highlight-purple" id="the_failure_workflow"><b>The Failure Workflow</b></span>
+        </div>
+        <br>
+        <div class="content-sub">
+          When Chrome starts a session, it advertises a connection URL bound to its local loopback interface:<br><br>
+                     <span class="highlight-purple">"webSocketDebuggerUrl": "ws://localhost:9222/devtools/page/&lt;session_id&gt;"</span><br><br>
+
+          When the Executor attempts to connect using the Kubernetes Service (e.g., ws://browser-farm-service:9222/...), the Round-Robin algorithm routes the handshake to any available pod. If the request lands on a pod different from the one that created the session, the target pod rejects the unknown Session ID, causing Session not found errors.
+
+        </div>
+        <br>
+
+        <!-- ===== HIGHLIGHTED SECTION (full width) ===== -->
+        <div class="content-sub highlight-purple highlight" id="why_standard_ingress_solution_failed">
+          <b>Why Standard Ingress Solutions Failed</b>
+        </div>
+        <div class="content-sub">
+          Before developing a custom solution, we evaluated standard Kubernetes Ingress strategies to handle session affinity (stickiness). Both major options were disqualified due to technical constraints.
+        </div>
+        <br>
+
+        <!-- ===== BULLET LIST ===== -->
+        <div class="content-sub">
+          <!-- <b>[LIST_TITLE]</b> -->
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">A. Google Cloud (GCE) Ingress:</span></b> The native GKE Ingress controller was the first candidate. However, it was ruled out because:
+              <ul>
+                <li>Affinity Limitations: GCE Ingress only supports Cookie-based or ClientIP-based affinity. It lacks support for arbitrary Header-based affinity. The google document says “You can use a BackendConfig to set session affinity to client IP or generated cookie.”</li>
+                <li>Application Incompatibility: The Executor service is a programmatic client, not a standard web browser. Adapting the client to manage and persist Ingress-generated cookies was not feasible. Furthermore, relying on ClientIP hashing was deemed unreliable due to the dynamic network nature of the internal cluster traffic.</li>
+              </ul>
+            </li>
+            <br><li><b><span class="highlight-purple">B. NGINX Ingress Controller</span></b> We subsequently attempted to deploy the community NGINX Ingress Controller, which supports sophisticated header-based routing (e.g., routing based on a Session-ID header).
+               <ul>
+                <li>Security Constraints: The deployment failed due to strict RBAC (Role-Based Access Control) policies within the cluster.</li>
+                <li>Access Denial: The Kubernetes cluster denied the specific ClusterRole permissions required for the NGINX controller to operate effectively. We were unable to override or "force" these permissions due to organizational security governance.</li>
+              </ul>
+            </li>
+            <!-- <li><b><span class="highlight-purple">[ITEM_3_TITLE]:</span></b> [ITEM_3_DESC]</li> -->
+          </ul>
+
+          Conclusion: With Layer 7 (Ingress) solutions blocking us on both technical and security fronts, we determined that a Pod-to-Pod (Direct Addressing) approach was the only viable path.
+        </div>
+        <br>
+
+        <!-- ===== HIGHLIGHTED SUB-HEADING ===== -->
+        <div class="content-head">
+          <span id="the_solution"><b>The Solution: Dynamic Pod-IP Injection</b></span>
+        </div>
+        <br>
+        <div class="content-sub">
+           To guarantee the WebSocket request reaches the correct instance without an Ingress middleman, we altered the "advertisement." Instead of returning localhost, the pod now returns its own Pod IP or FQDN.
+           <br><br>
+           <input type="checkbox" id="zoom-solution" class="zoom-checkbox">
+           <label for="zoom-solution" class="zoom-thumb">
+              <img class="img-solution" src="static/images/webhook-2.png" alt="pod-ip-injection">
+           </label>
+           <label class="zoom-overlay" for="zoom-solution">
+             <img src="static/images/webhook-2.png" alt="pod-ip-injection">
+           </label>
+           <br>
+
+          This approach requires two changes:
+          <ol>
+            <li>
+              Infrastructure: Injecting Pod Metadata into the container environment.</li>
+            <li>Runtime: Scripting a dynamic rewrite of the Chrome JSON response.</li>
+          </ol>
+
+        </div>
+        <br>
+        
+        <div class="content-head">
+          Step 1: Injecting Pod Metadata
+        </div>
+        <div class="content-sub">
+          We utilize the Kubernetes Downward API to expose the Pod's IP as an environment variable.
+          <br><br>Update kubernetes/deployment.yaml:
+          <pre class="highlight-purple content-sub code">
+                containers:
+                    - name: browser-farm
+                      env:
+                        - name: POD_IP
+                          valueFrom:
+                            fieldRef:
+                              fieldPath: status.podIP
+                        - name: POD_NAME
+                          valueFrom:
+                            fieldRef:
+                              fieldPath: metadata.name
+                        - name: POD_NAMESPACE
+                          valueFrom:
+                            fieldRef:
+                              fieldPath: metadata.namespace
+          </pre>
+        </div>
+        <br>
+
+        <div class="content-head">
+          Step 2: The Node.js Rewriter Script
+        </div>
+        <div class="content-sub">
+          Instead of relying on fragile shell scripts (sed), we deployed a robust Node.js script. This script polls the local Chrome instance, parses the JSON safely, injects the POD_IP, and exposes the corrected list.
+          <br><br><b>Verification:</b>
+          <br>Exec into a running pod to ensure the webSocketDebuggerUrl is rewriting correctly:
+          <pre class="highlight-purple content-sub code">
+                kubectl exec -it &lt;browser-farm-pod&gt; -- curl -s http://localhost:9222/json/list
+          </pre>
+
+          <br><br>Expected Output:
+          <pre class="highlight-purple content-sub code">
+                "webSocketDebuggerUrl": "ws://10.4.1.17:9222/devtools/page/1234-5678-ABCD"
+          </pre>
+        </div>
+      <div class="content-head" id="results">
+          <b>Results and Benefit</b>
+      </div>
+      <div class="content-sub">
+        By bypassing the limitations of GCE Ingress and the security restrictions of NGINX Ingress, we achieved:
+          <ul><li>100% Session Affinity: Executors connect directly to the specific pod IP, eliminating routing guesswork.</li>
+          <li>Simplified Networking: Traffic stays within the cluster VPC, reducing latency compared to hair-pinning through an external Load Balancer.</li>
+          <li>Compatibility: This method works regardless of Ingress limitations or restricted RBAC policies, making it highly portable across different GKE security postures.</li>
+        </ul>
+        </div>
+
+        <!-- ===== INLINE HIGHLIGHTS ===== -->
+        <div class="content-sub">
+          Statefulness inside a inherently stateless orchestration platform like Kubernetes often forces architects into a corner. While Ingress controllers and service meshes are usually the go-to answer for session affinity, real-world enterprise environments come with security guardrails and managed platform trade-offs.
+
+          Solving the Chrome DevTools Protocol routing issue at the pod level proved that shifting the responsibility of "identity advertisement" to the application container itself can be far cleaner, more secure, and significantly more portable across GKE clusters.
+          You may look into these documentations to understand the challenge and the resone behind the descision making <a class="highlight" href="https://docs.nginx.com/nginx-ingress-controller/configuration/ingress-resources/advanced-configuration-with-snippets#disadvantages-of-using-snippets">"Disadvatage of Nginx snippet controller"</a> and <a class="highlight" href="https://pauldally.medium.com/session-affinity-and-kubernetes-proceed-with-caution-8e66fd5deb05">Implementing Cookie and ClientIp session affinity</a>
+        </div>
+        <br>
+
+        <!-- ===== AUTHOR SECTION ===== -->
+        <div class="author-section author-section-border">
+          <div class="footer-img-section">
+            <img class="footer-img" src="static/images/profile2.png" alt="Author">
+          </div>
+          <div class="author-intro">
+            <b>About Author:</b><br><b>Sinjini Banerjee</b><br><b>Cloud Engineer</b>
+          </div>
+          <div class="next prev">
+            <br>
+            <a href="https://jkp1008shine.github.io/resume-sinjini-banerjee"><b>MAIN PAGE</b></a>
+          </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="center"><br><br><br> &copy; Copyright 2024. All right Reserved.</div>
+        <div class="center">
+          <p id="lastUpdated"></p>
+        </div>
+
+      </div> <!-- closes section2 -->
+    </div> <!-- closes layout div -->
+
+    <script>
+      const lastModified = new Date(document.lastModified);
+      const formattedDate = lastModified.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+      });
+      document.getElementById('lastUpdated').textContent = `Last updated on: ${formattedDate}`;
+    </script>
+
+  </body>
+</html>

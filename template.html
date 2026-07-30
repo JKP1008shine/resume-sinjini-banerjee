@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[PAGE_TITLE]</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+
+    <!-- CHOOSE ONE LAYOUT CLASS:
+         .main        → for index/home page (3 cols: 1fr 3fr 1fr)
+         .main-talk   → for blog/article pages (3 cols: 1fr 4fr 1fr, auto rows)
+         .main-talk2  → for denser article pages (3 cols: 1fr 4fr 1fr, fixed rows)
+    -->
+    <div class="main-talk">
+
+      <!-- ===== SECTION 1: HEADER / IMAGE ===== -->
+      <div class="section1">
+        <!-- Use content-head-docker for centered article titles -->
+        <p class="content-head-docker">[ARTICLE_TITLE]</p>
+        <!-- Image classes: img-docker, img-docker-2, img-migration, img-profile, webhook, img-solution
+             For click-to-zoom, use: zoom-checkbox + zoom-thumb + zoom-overlay (see README) -->
+        <img class="img-docker" src="[IMAGE_PATH]" alt="[ALT_TEXT]">
+      </div>
+
+      <!-- ===== SECTION 2: MAIN CONTENT ===== -->
+      <div class="section2">
+
+        <!-- ===== INTRO PARAGRAPH ===== -->
+        <div class="content-sub">
+          [INTRO_TEXT]
+        </div>
+
+        <!-- ===== QUICK LINKS (optional) ===== -->
+        <br>
+        <div class="content-head">
+          <span class="highlight-purple">Quick links</span>
+          <ul class="content-sub">
+            <li><a href="#[ANCHOR_ID_1]">[LINK_TEXT_1]</a></li>
+            <li><a href="#[ANCHOR_ID_2]">[LINK_TEXT_2]</a></li>
+            <li><a href="#[ANCHOR_ID_3]">[LINK_TEXT_3]</a></li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== CONTENT HEADING ===== -->
+        <div class="content-head" id="[ANCHOR_ID_1]">
+          [SECTION_HEADING]
+        </div>
+        <div class="content-sub">
+          [SECTION_PARAGRAPH]
+        </div>
+        <br>
+
+        <!-- ===== HIGHLIGHTED SUB-HEADING ===== -->
+        <div class="content-sub highlight">
+          <span class="highlight-purple" id="[ANCHOR_ID_2]"><b>[SUB_HEADING]</b></span>
+        </div>
+        <br>
+        <div class="content-sub">
+          [SECTION_PARAGRAPH_2]
+        </div>
+        <br>
+
+        <!-- ===== HIGHLIGHTED SECTION (full width) ===== -->
+        <div class="content-sub highlight-purple highlight" id="[ANCHOR_ID_3]">
+          <b>[HIGHLIGHTED_HEADING]</b>
+        </div>
+        <div class="content-sub">
+          [SECTION_PARAGRAPH_3]
+        </div>
+        <br>
+
+        <!-- ===== BULLET LIST ===== -->
+        <div class="content-sub">
+          <b>[LIST_TITLE]</b>
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">[ITEM_1_TITLE]:</span></b> [ITEM_1_DESC]</li>
+            <li><b><span class="highlight-purple">[ITEM_2_TITLE]:</span></b> [ITEM_2_DESC]</li>
+            <li><b><span class="highlight-purple">[ITEM_3_TITLE]:</span></b> [ITEM_3_DESC]</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== CODE BLOCK ===== -->
+        <div class="content-head">
+          [CODE_SECTION_TITLE]
+        </div>
+        <pre class="highlight-purple content-sub code">
+[YOUR_CODE_HERE]
+        </pre>
+        <div class="content-sub">
+          [CODE_EXPLANATION]
+        </div>
+        <br>
+
+        <!-- ===== INLINE HIGHLIGHTS ===== -->
+        <div class="content-sub">
+          Use <span class="highlight-purple">[HIGHLIGHTED_TEXT]</span> for emphasis,
+          or <span class="highlight">[UNDERLINED_TEXT]</span> for underlined emphasis.
+        </div>
+        <br>
+
+        <!-- ===== AUTHOR SECTION ===== -->
+        <div class="author-section author-section-border">
+          <div class="footer-img-section">
+            <img class="footer-img" src="[AUTHOR_IMAGE_PATH]" alt="Author">
+          </div>
+          <div class="author-intro">
+            <b>About Author:</b><br><b>[AUTHOR_NAME]</b><br><b>[AUTHOR_TITLE]</b>
+          </div>
+          <div class="next prev">
+            <br>
+            <a href="[NEXT_PREV_LINK]"><b>[NEXT_PREV_TEXT]</b></a>
+          </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="center"><br><br><br> &copy; Copyright 2024. All right Reserved.</div>
+        <div class="center">
+          <p id="lastUpdated"></p>
+        </div>
+
+      </div> <!-- closes section2 -->
+    </div> <!-- closes layout div -->
+
+    <script>
+      const lastModified = new Date(document.lastModified);
+      const formattedDate = lastModified.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+      });
+      document.getElementById('lastUpdated').textContent = `Last updated on: ${formattedDate}`;
+    </script>
+
+  </body>
+</html>
