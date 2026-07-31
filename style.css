@@ -264,6 +264,14 @@ tree ul {
   width: 300px;
 }
 
+.img-logo {
+  max-width: 100%;
+  height: auto;
+  width: 200px;
+  display: block;
+  margin: 0 auto;
+}
+
 .img-solution {
   max-width: 100%;
   height: auto;

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Gemini Search Onboarding with IaC</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="static/theme.js" defer></script>
+  </head>
+  <body>
+
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle day/night mode">
+      <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+
+    <div class="main-talk">
+
+      <!-- ===== SECTION 1: HEADER / IMAGE ===== -->
+      <div class="section1">
+        <p class="content-head-docker">Enterprise Gemini Search: How We Automated Onboarding Across Google Workspace, Entra ID, and Beyond</p>
+        <img class="img-logo" src="static/images/gemini-terraform-main.svg" alt="gemini-terraform-main-logo">
+      </div>
+
+      <!-- ===== SECTION 2: MAIN CONTENT ===== -->
+      <div class="section2">
+
+        <!-- ===== INTRO PARAGRAPH ===== -->
+        <div class="content-sub">
+          If you are an SRE or Cloud Engineer working with enterprise AI workloads, you know that provisioning unified search engines like <span class="highlight-purple">Gemini Enterprise Search</span> (powered by Vertex AI Search / Discovery Engine) isn't just a simple UI toggle.
+          <br><br>When deploying across different corporate environments, you encounter a maze of <span class="highlight-purple">identity federation options</span>, <span class="highlight-purple">license SKU assignments</span>, <span class="highlight-purple">dynamic IAM mappings</span>, and <span class="highlight-purple">secret management hurdles</span>. Doing this manually for every new customer or environment means spending hours clicking through GCP Console menus, running ad-hoc scripts, and risking configuration drift.
+          <br><br>Today, we are diving deep into how we built an automated, end-to-end Infrastructure-as-Code (IaC) pipeline using <span class="highlight-purple">Cloud Foundation Fabric (CFF) Terraform modules</span>, a <span class="highlight-purple">CSV-driven parser engine</span>, and interactive onboarding tooling. Let's get started!
+        </div>
+
+        <!-- ===== QUICK LINKS ===== -->
+        <br>
+        <div class="content-head">
+          <span class="highlight-purple">Quick links</span>
+          <ul class="content-sub">
+            <li><a href="#identity_flows">Identity &amp; Provisioning Flows</a></li>
+            <li><a href="#module_stack">The Terraform Module Stack</a></li>
+            <li><a href="#pitfalls">The 4 Pitfalls We Solved</a></li>
+            <li><a href="#quickstart">Quickstart: Spin Up an Environment</a></li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: IDENTITY FLOWS ===== -->
+        <div class="content-head" id="identity_flows">
+          Identity &amp; Provisioning Flows
+        </div>
+        <div class="content-sub">
+          Every customer lands in one of three identity &amp; provisioning modes, and the pipeline auto-selects the right path from the CSV configuration.
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">Google Workspace Native Identity Flow (GWS Native):</span></b> For customers operating directly inside Google Workspace or Cloud Identity. Access and licensing are managed via Workspace user accounts, Organizational Units (OUs), and Google Groups.</li>
+            <li><b><span class="highlight-purple">Microsoft Entra ID Federated Identity Flow (OIDC / WIF):</span></b> For enterprise clients federating external Azure/Entra ID directories into GCP. This flow leverages GCP Workforce Identity Pools and OIDC providers to let users log in with their corporate Microsoft credentials without duplicating accounts.</li>
+            <li><b><span class="highlight-purple">Independent &amp; Hybrid Provisioning Mode:</span></b> Not every customer needs a brand-new project or a full stack. Our setup supports selective execution&mdash;allowing you to target an existing GCP project (<span class="highlight">create_project = FALSE</span>), skip WIF if already configured (<span class="highlight">provision_wif = FALSE</span>), or deploy only the Gemini search datastores (<span class="highlight">provision_ai = TRUE</span>).</li>
+          </ul>
+        </div>
+        <input type="checkbox" id="zoom-arch" class="zoom-checkbox">
+        <label for="zoom-arch" class="zoom-thumb">
+          <img class="img-solution" src="static/images/gemini-enterprise-onbarding.png" alt="gemini-enterprise-search-onboarding-architecture">
+        </label>
+        <label class="zoom-overlay" for="zoom-arch">
+          <img src="static/images/gemini-enterprise-onbarding.png" alt="gemini-enterprise-search-onboarding-architecture">
+        </label>
+        <br>
+
+        <!-- ===== SECTION: MODULE STACK ===== -->
+        <div class="content-sub highlight">
+          <span class="highlight-purple" id="module_stack"><b>The Terraform Module Stack</b></span>
+        </div>
+        <br>
+        <div class="content-sub">
+          The whole onboarding surface is decomposed into focused, reusable modules that mirror each layer of the stack:
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">project.tf:</span></b> Handles GCP project creation, billing account linkage, organization association, and API service activation (Discovery Engine, Secret Manager, Cloud Build).</li>
+            <li><b><span class="highlight-purple">iam.tf:</span></b> Configures Workforce Identity Federation (Entra ID OIDC pool &amp; provider) and assigns organization/project-level administrative IAM roles.</li>
+            <li><b><span class="highlight-purple">ai.tf:</span></b> Provisions the Gemini Search Engine, sets up datastores (Google Workspace or Microsoft Outlook), configures Access Control Lists (ACLs), user store settings, and embeds the web application search widget.</li>
+            <li><b><span class="highlight-purple">cicd.tf:</span></b> Sets up remote Terraform state GCS buckets, Secret Manager secret vaults, and Cloud Build v2 triggers connected directly to GitHub repositories.</li>
+            <li><b><span class="highlight-purple">config.tf &amp; config.csv:</span></b> The engine's heart. A native Terraform parser reads parameters from config.csv to dynamically enable or disable modules and inject runtime variables.</li>
+            <li><b><span class="highlight-purple">script.sh &amp; activate_trial.py:</span></b> Interactive CLI helper scripts that prompt the user, build the CSV configuration, validate inputs, and verify API/license activation status.</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== HIGHLIGHTED SECTION (full width) ===== -->
+        <div class="content-sub highlight-purple highlight" id="pitfalls">
+          <b>The 4 Pitfalls We Solved</b>
+        </div>
+        <div class="content-sub">
+          No enterprise automation ships without battle scars. Here are the four hardest problems we hit&mdash;and how we engineered around them.
+        </div>
+        <br>
+
+        <div class="content-sub">
+          <b>1. Eliminating Secret Casing Mangles in CSV Parsers</b>
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">The Problem:</span></b> Standard Terraform lowercasing transformations during CSV parsing altered the case of sensitive credentials (such as Azure Client Secrets or GitHub Personal Access Tokens). This resulted in authentication failures like <span class="highlight-purple">401 Bad Credentials</span> during Cloud Build setup.</li>
+            <li><b><span class="highlight-purple">The Solution:</span></b> We updated our native parser in config.tf to selectively process inputs: boolean variables are normalized to lowercase, while security secrets retain their exact literal casing.</li>
+          </ul>
+        </div>
+        <br>
+
+        <div class="content-sub">
+          <b>2. Overcoming Secret Manager Write-Only Caching</b>
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">The Problem:</span></b> Because Secret Manager secrets are write-only resources, Terraform does not automatically detect when a token string updates inside a secret payload unless the version tag map changes.</li>
+            <li><b><span class="highlight-purple">The Solution:</span></b> We implemented explicit version tag key mappings inside cicd.tf. To force an update to an updated token, we increment the version tag identifier (e.g., from v2 to v3), triggering clean Secret Manager version rotation without state corruption.</li>
+          </ul>
+        </div>
+        <br>
+
+        <div class="content-sub">
+          <b>3. Handling Duplicate Workforce Identity Pools Across Organizations</b>
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">The Problem:</span></b> Workforce Identity Pools require globally unique identifiers per GCP organization. If a previous setup failed or left a lingering pool, redeploying failed with <span class="highlight-purple">"Resource Already Exists"</span>.</li>
+            <li><b><span class="highlight-purple">The Solution:</span></b> We added dynamic naming parameterization (<span class="highlight">workforce_pool_name</span>) inside config.csv and created validation routines in script.sh to check for pre-existing pools before initiating deployment.</li>
+          </ul>
+        </div>
+        <br>
+
+        <div class="content-sub">
+          <b>4. Bypassing Re-authentication Failures in Multi-Tenant Environments</b>
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">The Problem:</span></b> Organization-level operations (like WIF provisioning or billing linkages) frequently failed when standard application credentials lacked organization admin privileges.</li>
+            <li><b><span class="highlight-purple">The Solution:</span></b> The deployment pipeline enforces pre-execution authentication checks, ensuring developers explicitly execute both <span class="highlight">gcloud auth login</span> and <span class="highlight">gcloud auth application-default login</span> before provisioning org-level assets.</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: SKU / PRODUCT ===== -->
+        <div class="content-head">
+          Licensing: Product &amp; SKU IDs
+        </div>
+        <div class="content-sub">
+          Correct SKU assignment is what actually turns the search engine on for real users. The pipeline validates these against the customer's billing account:
+          <ul>
+            <li><b><span class="highlight-purple">Product ID:</span></b> 101047</li>
+            <li><b><span class="highlight-purple">Gemini Enterprise:</span></b> 1010470001</li>
+            <li><b><span class="highlight-purple">Gemini Business:</span></b> 1010470002</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: QUICKSTART ===== -->
+        <div class="content-sub highlight">
+          <span class="highlight-purple" id="quickstart"><b>Quickstart: Spin Up an Environment</b></span>
+        </div>
+        <br>
+
+        <div class="content-head">
+          Option A: Fully Interactive Helper Script (Recommended)
+        </div>
+        <pre class="highlight-purple content-sub code">
+chmod +x script.sh
+./script.sh
+        </pre>
+        <div class="content-sub">
+          The script guides you through interactive prompts, auto-detects existing values, generates your config.csv, and executes Terraform steps in sequence.
+        </div>
+        <br>
+
+        <div class="content-head">
+          Option B: Manual Terraform Execution
+        </div>
+        <div class="content-sub">
+          Copy <span class="highlight-purple">config.csv.example</span> to <span class="highlight-purple">config.csv</span> and update parameters.
+          <br><br>Initialize and target project creation first:
+        </div>
+        <pre class="highlight-purple content-sub code">
+terraform init
+terraform apply -target=module.project -auto-approve
+        </pre>
+        <div class="content-sub">
+          Complete the rest of the stack:
+        </div>
+        <pre class="highlight-purple content-sub code">
+terraform apply -auto-approve
+        </pre>
+        <br>
+
+        <!-- ===== CLOSING ===== -->
+        <div class="content-sub">
+          Automating Gemini Enterprise Search onboarding turns a fragile, click-driven chore into a repeatable, audit-ready pipeline. CSV-driven Terraform with selective module execution keeps every environment reproducible&mdash;and the parser hardening we did around secrets, write-only caching, WIF pool naming, and auth pre-checks is exactly the kind of sharp edge you only find by shipping to real multi-tenant enterprises.
+          <br><br>Don't just read, but <span class="highlight-purple">"DO THE THING!"</span> Happy Exploring!
+        </div>
+        <br>
+
+        <!-- ===== AUTHOR SECTION ===== -->
+        <div class="author-section author-section-border">
+          <div class="footer-img-section">
+            <img class="footer-img" src="static/images/profile2.png" alt="Author">
+          </div>
+          <div class="author-intro">
+            <b>About Author:</b><br><b>Sinjini Banerjee</b><br><b>Cloud Engineer</b>
+          </div>
+          <div class="next prev">
+            <br>
+            <a href="https://jkp1008shine.github.io/resume-sinjini-banerjee"><b>MAIN PAGE</b></a>
+          </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="center"><br><br><br> &copy; Copyright 2024. All right Reserved.</div>
+        <div class="center">
+          <p id="lastUpdated"></p>
+        </div>
+
+      </div> <!-- closes section2 -->
+    </div> <!-- closes layout div -->
+
+    <script>
+      const lastModified = new Date(document.lastModified);
+      const formattedDate = lastModified.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+      });
+      document.getElementById('lastUpdated').textContent = `Last updated on: ${formattedDate}`;
+    </script>
+
+  </body>
+</html>
