@@ -240,6 +240,8 @@ tree ul {
 }
 
 .img-profile{
+    position: relative;
+    z-index: 1;
     border-radius: 10%;
     border: solid  2px #718add;
     height: 150px;
@@ -401,4 +403,211 @@ a:hover {
 
 .zoom-checkbox:checked ~ .zoom-overlay {
   display: flex;
+}
+
+/* Monochrome floral stickers */
+.profile-wrap {
+  position: relative;
+  display: inline-block;
+}
+.flowers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  color: #718add;
+}
+.flower {
+  position: absolute;
+  opacity: 1;
+  transition: top 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+              left 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+              right 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+              bottom 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+              width 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+              opacity 0.5s ease;
+}
+.flower svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Day mode: bloom out, surround the pic and sway in the theme colour */
+body.day .flowers {
+  animation: fade-in 0.5s ease both;
+}
+body.day .flower {
+  transform: scale(1);
+}
+body.day .flower svg {
+  animation: sway 2.4s ease-in-out infinite;
+  filter: drop-shadow(0 2px 3px rgba(109, 74, 224, 0.3));
+}
+body.day .flower.f1 { top: -14px;   left: 10px;   width: 46px; }
+body.day .flower.f2 { top: -10px;   right: 26px;  width: 38px; }
+body.day .flower.f3 { top: 34px;    left: -26px;  width: 32px; }
+body.day .flower.f4 { bottom: -12px; left: 34px;  width: 42px; }
+body.day .flower.f5 { top: 40px;    right: -30px; width: 40px; }
+body.day .flower.f6 { bottom: -14px; right: 30px; width: 36px; }
+body.day .flower.f7 { top: 84px;    left: -30px;  width: 26px; }
+body.day .flower.f8 { top: 92px;    right: -24px; width: 26px; }
+body.day .flower.l1 { top: -16px;   left: 72px;   width: 20px; }
+body.day .flower.l2 { top: 62px;    left: -14px;  width: 20px; }
+body.day .flower.l3 { bottom: -18px; right: 66px; width: 22px; }
+body.day .flower.l4 { top: 70px;    right: -14px; width: 18px; }
+body.day .flower.f2 svg { animation-delay: 0.3s; }
+body.day .flower.f3 svg { animation-delay: 0.6s; }
+body.day .flower.f4 svg { animation-delay: 0.9s; }
+body.day .flower.f5 svg { animation-delay: 1.2s; }
+body.day .flower.f6 svg { animation-delay: 1.5s; }
+body.day .flower.f7 svg { animation-delay: 1.8s; }
+body.day .flower.f8 svg { animation-delay: 2.1s; }
+body.day .flower.l1 svg { animation-delay: 0.15s; }
+body.day .flower.l2 svg { animation-delay: 0.45s; }
+body.day .flower.l3 svg { animation-delay: 0.75s; }
+body.day .flower.l4 svg { animation-delay: 1.05s; }
+
+/* Night mode: swoop in and tuck behind the profile pic */
+body:not(.day) .flowers {
+  z-index: 0;
+  color: white;
+}
+body:not(.day) .flower {
+  transform: scale(0.15);
+  transition: top 0.55s cubic-bezier(0.5, 0.05, 0.35, 1),
+              left 0.55s cubic-bezier(0.5, 0.05, 0.35, 1),
+              right 0.55s cubic-bezier(0.5, 0.05, 0.35, 1),
+              bottom 0.55s cubic-bezier(0.5, 0.05, 0.35, 1),
+              width 0.55s cubic-bezier(0.5, 0.05, 0.35, 1),
+              transform 0.55s cubic-bezier(0.5, 0.05, 0.35, 1),
+              opacity 0.4s ease;
+}
+body:not(.day) .flower.f1 { top: 58px;   left: 52px;  width: 36px; }
+body:not(.day) .flower.f2 { top: 60px;   left: 58px;  width: 34px; }
+body:not(.day) .flower.f3 { top: 56px;   left: 60px;  width: 30px; }
+body:not(.day) .flower.f4 { top: 62px;   left: 54px;  width: 32px; }
+body:not(.day) .flower.f5 { top: 58px;   left: 56px;  width: 34px; }
+body:not(.day) .flower.f6 { top: 60px;   left: 60px;  width: 32px; }
+body:not(.day) .flower.f7 { top: 64px;   left: 62px;  width: 24px; }
+body:not(.day) .flower.f8 { top: 62px;   left: 56px;  width: 26px; }
+body:not(.day) .flower.l1 { top: 60px;   left: 64px;  width: 22px; }
+body:not(.day) .flower.l2 { top: 62px;   left: 62px;  width: 24px; }
+body:not(.day) .flower.l3 { top: 64px;   left: 60px;  width: 24px; }
+body:not(.day) .flower.l4 { top: 62px;   left: 66px;  width: 20px; }
+body:not(.day) .flower.f1 { transform: scale(0.15) rotate(-24deg); }
+body:not(.day) .flower.f2 { transform: scale(0.15) rotate(24deg); }
+body:not(.day) .flower.f3 { transform: scale(0.15) rotate(18deg); }
+body:not(.day) .flower.f4 { transform: scale(0.15) rotate(-20deg); }
+body:not(.day) .flower.f5 { transform: scale(0.15) rotate(22deg); }
+body:not(.day) .flower.f6 { transform: scale(0.15) rotate(-18deg); }
+body:not(.day) .flower.f7 { transform: scale(0.15) rotate(-22deg); }
+body:not(.day) .flower.f8 { transform: scale(0.15) rotate(20deg); }
+body:not(.day) .flower.l1 { transform: scale(0.15) rotate(-16deg); }
+body:not(.day) .flower.l2 { transform: scale(0.15) rotate(16deg); }
+body:not(.day) .flower.l3 { transform: scale(0.15) rotate(18deg); }
+body:not(.day) .flower.l4 { transform: scale(0.15) rotate(-18deg); }
+
+/* Night sky: stars pop out around the pic at night */
+.night-sky {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  color: #718add;
+}
+.sky {
+  position: absolute;
+  opacity: 0;
+  transform: scale(0.2) rotate(30deg);
+  transition: top 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+              left 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+              right 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+              bottom 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+              opacity 0.4s ease;
+}
+.sky svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+body:not(.day) .night-sky {
+  z-index: 3;
+  color: white;
+  animation: fade-in 0.5s ease both;
+}
+body:not(.day) .sky {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+body:not(.day) .s1    { top: -16px;  left: 12px;   width: 17px; }
+body:not(.day) .s2    { top: 46px;   left: -20px;  width: 14px; }
+body:not(.day) .s3    { top: 104px;  left: -14px;  width: 15px; }
+body:not(.day) .s4    { bottom: -16px; left: 24px; width: 9px; }
+body:not(.day) .s5    { top: -20px;  right: 20px;  width: 13px; }
+body:not(.day) .s6    { top: 58px;   right: -16px; width: 9px; }
+body:not(.day) .s7    { top: 118px;  right: -18px; width: 12px; }
+body:not(.day) .s8    { bottom: -20px; right: 28px; width: 9px; }
+body:not(.day) .sky.star svg { animation: twinkle 2.2s ease-in-out infinite; }
+body:not(.day) .star.s2 svg { animation-delay: 0.5s; }
+body:not(.day) .star.s3 svg { animation-delay: 1s; }
+body:not(.day) .star.s4 svg { animation-delay: 1.5s; }
+body:not(.day) .star.s5 svg { animation-delay: 0.25s; }
+body:not(.day) .star.s6 svg { animation-delay: 0.75s; }
+body:not(.day) .star.s7 svg { animation-delay: 1.25s; }
+body:not(.day) .star.s8 svg { animation-delay: 1.75s; }
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-9deg) translateY(0) scale(1); }
+  50%      { transform: rotate(9deg) translateY(-5px) scale(1.12); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.65); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flower,
+  .flower svg,
+  .sky,
+  .sky svg {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .flower {
+    width: 22px !important;
+  }
+  body.day .flower.f1 { left: -4px; }
+  body.day .flower.f2 { right: 12px; }
+  body.day .flower.f3 { left: -16px; }
+  body.day .flower.f4 { left: 20px; }
+  body.day .flower.f5 { right: -16px; }
+  body.day .flower.f6 { right: 12px; }
+  body.day .flower.f7 { left: -16px; }
+  body.day .flower.f8 { right: -14px; }
+  body.day .flower.l1 { left: 54px; }
+  body.day .flower.l2 { left: -6px; }
+  body.day .flower.l3 { right: 52px; }
+  body.day .flower.l4 { right: -6px; }
+  body:not(.day) .flower.f1 { left: 30px; }
+  body:not(.day) .flower.f2 { left: 34px; }
+  body:not(.day) .flower.f3 { left: 32px; }
+  body:not(.day) .flower.f4 { left: 34px; }
+  body:not(.day) .flower.f5 { left: 32px; }
+  body:not(.day) .flower.f6 { left: 34px; }
+  body:not(.day) .flower.f7 { left: 38px; }
+  body:not(.day) .flower.f8 { left: 36px; }
+  body:not(.day) .flower.l1 { left: 38px; }
+  body:not(.day) .flower.l2 { left: 36px; }
+  body:not(.day) .flower.l3 { left: 38px; }
+  body:not(.day) .flower.l4 { left: 36px; }
 }
