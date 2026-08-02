@@ -24,8 +24,28 @@ body.day .highlight-purple {
 body.day .highlight {
   border-bottom-color: #6d4ae0;
 }
-body.day a:hover {
-  color: #6d4ae0;
+body.day b,
+body.day strong,
+body.day .highlight,
+body.day .highlight-purple,
+body.day .exp-month-title,
+body.day .content-head,
+body.day .content-head-docker,
+body.day .content-head-meet-sinjini,
+body.day .content-head a,
+body.day h1,
+body.day h2,
+body.day h3,
+body.day h4 {
+  color: #7d5fd0;
+}
+body.day .highlight {
+  border-bottom-color: #7d5fd0;
+}
+body.day a:hover,
+body.day a:hover b,
+body.day a:hover strong {
+  color: #444444;
 }
 
 /* Day/Night toggle */
@@ -82,7 +102,7 @@ body.day .theme-toggle .icon-moon {
 .main{
   display: grid;
   grid-template-columns: 1fr 3fr 1fr;
-  grid-template-rows: 1fr 3fr;
+  grid-template-rows: auto auto;
 }
 .main-talk{
   display: grid;
@@ -124,6 +144,107 @@ body.day .theme-toggle .icon-moon {
   font-weight: bold;
   padding-left:15px;
   padding-bottom: 5px;
+}
+
+.exp {
+  margin: 4px 0;
+}
+
+.exp-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.exp-summary h3 {
+  margin: 0;
+  padding-bottom: 2px;
+  transition: color 0.2s ease;
+}
+
+.exp-summary:hover h3,
+details.exp[open] .exp-summary h3 {
+  color: #718add;
+  border-bottom: 3px solid #718add;
+}
+
+body.day .exp-summary:hover h3,
+body.day details.exp[open] .exp-summary h3 {
+  color: #444444;
+  border-bottom-color: #444444;
+}
+
+.exp-desc {
+  padding: 4px 0 4px 26px;
+  border-left: 2px solid #718add;
+  margin-left: 8px;
+  font-size: 0.95em;
+}
+
+.exp-desc p {
+  margin: 4px 0;
+}
+
+.exp-month {
+  padding: 2px 0;
+}
+
+.exp-month-title {
+  display: block;
+  position: relative;
+  font-weight: bold;
+  color: #718add;
+  margin: 4px 0 2px;
+}
+
+.exp-month-title::before {
+  content: "";
+  position: absolute;
+  left: -32px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #718add;
+}
+
+.exp-month-detail {
+  margin: 2px 0 6px;
+  padding-left: 18px;
+}
+
+.exp-month-detail li {
+  margin: 2px 0;
+}
+
+.exp-month-detail ul {
+  margin: 2px 0;
+  padding-left: 18px;
+}
+
+.exp-month-detail li::marker {
+  color: #718add;
+}
+
+body.day .exp-month-detail li::marker {
+  color: #7d5fd0;
+}
+
+.role-arrow {
+  font-size: 16px;
+  line-height: 1;
+  color: #718add;
+  animation: blink-arrow 1s step-end infinite;
+}
+
+@keyframes blink-arrow {
+  50% {
+    opacity: 0;
+  }
 }
 
 .content-head{
