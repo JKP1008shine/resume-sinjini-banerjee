@@ -588,7 +588,7 @@ a:hover {
 
 /* Day mode: bloom out, surround the pic and sway in the theme colour */
 body.day .flowers {
-  animation: fade-in 0.5s ease both;
+  display: none;
 }
 body.day .flower {
   transform: scale(1);
@@ -685,31 +685,31 @@ body:not(.day) .flower.l4 { transform: scale(0.15) rotate(-18deg); }
   width: 100%;
   height: auto;
 }
-body:not(.day) .night-sky {
+.night-sky {
   z-index: 3;
-  color: white;
+  color: #718add;
   animation: fade-in 0.5s ease both;
 }
-body:not(.day) .sky {
+.sky {
   opacity: 1;
   transform: scale(1) rotate(0deg);
 }
-body:not(.day) .s1    { top: -16px;  left: 12px;   width: 17px; }
-body:not(.day) .s2    { top: 46px;   left: -20px;  width: 14px; }
-body:not(.day) .s3    { top: 104px;  left: -14px;  width: 15px; }
-body:not(.day) .s4    { bottom: -16px; left: 24px; width: 9px; }
-body:not(.day) .s5    { top: -20px;  right: 20px;  width: 13px; }
-body:not(.day) .s6    { top: 58px;   right: -16px; width: 9px; }
-body:not(.day) .s7    { top: 118px;  right: -18px; width: 12px; }
-body:not(.day) .s8    { bottom: -20px; right: 28px; width: 9px; }
-body:not(.day) .sky.star svg { animation: twinkle 2.2s ease-in-out infinite; }
-body:not(.day) .star.s2 svg { animation-delay: 0.5s; }
-body:not(.day) .star.s3 svg { animation-delay: 1s; }
-body:not(.day) .star.s4 svg { animation-delay: 1.5s; }
-body:not(.day) .star.s5 svg { animation-delay: 0.25s; }
-body:not(.day) .star.s6 svg { animation-delay: 0.75s; }
-body:not(.day) .star.s7 svg { animation-delay: 1.25s; }
-body:not(.day) .star.s8 svg { animation-delay: 1.75s; }
+.s1    { top: -16px;  left: 12px;   width: 17px; }
+.s2    { top: 46px;   left: -20px;  width: 14px; }
+.s3    { top: 104px;  left: -14px;  width: 15px; }
+.s4    { bottom: -16px; left: 24px; width: 9px; }
+.s5    { top: -20px;  right: 20px;  width: 13px; }
+.s6    { top: 58px;   right: -16px; width: 9px; }
+.s7    { top: 118px;  right: -18px; width: 12px; }
+.s8    { bottom: -20px; right: 28px; width: 9px; }
+.sky.star svg { animation: twinkle 2.2s ease-in-out infinite; }
+.star.s2 svg { animation-delay: 0.5s; }
+.star.s3 svg { animation-delay: 1s; }
+.star.s4 svg { animation-delay: 1.5s; }
+.star.s5 svg { animation-delay: 0.25s; }
+.star.s6 svg { animation-delay: 0.75s; }
+.star.s7 svg { animation-delay: 1.25s; }
+.star.s8 svg { animation-delay: 1.75s; }
 
 @keyframes fade-in {
   from { opacity: 0; }
