@@ -171,6 +171,20 @@ body.day .theme-toggle .icon-moon {
   vertical-align: -0.12em;
 }
 
+.content-sub table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+}
+
+.content-sub th,
+.content-sub td {
+  border: 2px solid #718add;
+  padding: 6px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
 .exp {
   margin: 4px 0;
 }

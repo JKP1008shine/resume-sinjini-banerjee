@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scaling M2M Communication: WebSocket Session Affinity in GKE</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="static/theme.js" defer></script>
+  </head>
+  <body>
+
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle day/night mode">
+      <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+
+    <div class="main-talk">
+
+      <!-- ===== SECTION 1: HEADER / IMAGE ===== -->
+      <div class="section1">
+        <p class="content-head-docker">Scaling Machine-to-Machine Communication: Resolving WebSocket Session Affinity in <span class="highlight-purple">GKE</span></p>
+        <img class="webhook" src="static/images/webhook.svg" alt="foxchemy-websocket-architecture">
+      </div>
+
+      <!-- ===== SECTION 2: MAIN CONTENT ===== -->
+      <div class="section2">
+
+        <!-- ===== INTRO PARAGRAPH ===== -->
+        <div class="content-sub">
+          <b>Executive Summary</b>
+          <br><br>
+          In high-concurrency automated environments, maintaining persistent, sticky connections between client workers and stateful container instances is a critical architectural requirement. When <span class="highlight-purple">Foxchemy</span> — an agentic AI-powered e-commerce platform — scaled its automated checkout infrastructure, it encountered severe routing instability. Standard Google Kubernetes Engine (GKE) Ingress controllers failed to maintain session affinity for machine-to-machine WebSocket connections. This resulted in fragmented routing, orphaned <span class="highlight-purple">"zombie" browser processes</span>, and severe resource leaks.
+          <br><br>
+          Foxchemy engineered a resilient, high-throughput <b>"browser-farm"</b> architecture. Working hands-on with Foxchemy's platform engineering team, I helped them through every stage — from reproducing the routing failures in a staging cluster, to designing and implementing the fix, all the way to validating it under real production load. By combining direct Pod-IP discovery, custom NGINX protocol normalization, connection-driven Horizontal Pod Autoscaling (HPA), and Google Cloud Armor edge security, we eliminated WebSocket routing failures, reduced egress network payload costs by <b>94%</b>, and achieved true zero-downtime scale-down capabilities.
+        </div>
+
+        <!-- ===== QUICK LINKS ===== -->
+        <br>
+        <div class="content-head">
+          <span class="highlight-purple">Quick links</span>
+          <ul class="content-sub">
+            <li><a href="#challenge">Business &amp; Technical Challenge</a></li>
+            <li><a href="#solution">The Architectural Solution</a></li>
+            <li><a href="#autoscaling">Autoscaling &amp; Zero-Downtime Lifecycle</a></li>
+            <li><a href="#edge">Geo-Distributed IP Emulation &amp; Edge Security</a></li>
+            <li><a href="#finops">FinOps &amp; Data Egress Optimization</a></li>
+            <li><a href="#impact">Key Achievements &amp; Impact</a></li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: BUSINESS & TECHNICAL CHALLENGE ===== -->
+        <div class="content-head" id="challenge">
+          1. Business &amp; Technical Challenge
+        </div>
+        <div class="content-sub">
+          <b>1.1 The Agentic E-Commerce Vision</b>
+          <br><br>
+          Foxchemy's platform relies on autonomous AI agents that act on behalf of users to navigate e-commerce storefronts, manage cart states, and execute faster checkout flows. To perform these tasks reliably without relying on brittle third-party APIs, the backend orchestrates a massive <span class="highlight-purple">"browser-farm"</span> consisting of headless Google Chrome instances running inside containerized environments.
+        </div>
+        <div class="content-sub">
+          <b>1.2 The "Split-Brain" WebSocket Routing Crisis</b>
+          <br><br>
+          Each automated session requires a long-lived, bi-directional WebSocket connection via the Chrome DevTools Protocol (CDP). During initial production scaling on GKE, the infrastructure experienced a critical failure pattern:
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">Round-Robin Ingress Misalignment:</span></b> The standard GKE Ingress controller distributed incoming WebSocket upgrade requests using standard L7 round-robin balancing. When an execution worker attempted to attach to an active session, the load balancer frequently routed the WebSocket handshake to a <b>different</b> Pod than the one hosting the initialized Chrome process.</li>
+            <li><b><span class="highlight-purple">Orphaned "Zombie" Sessions:</span></b> The target Pod would reject the unrecognized session ID, returning <span class="highlight">502 Bad Gateway</span> or <span class="highlight">404 Not Found</span> errors. Meanwhile, the original Chrome instance remained running in an unmanaged state, consuming memory and vCPU indefinitely.</li>
+            <li><b><span class="highlight-purple">Resource Exhaustion &amp; Cascading Outages:</span></b> As orphan processes accumulated, GKE nodes hit Memory Out-Of-Memory (<span class="highlight">OOMKilled</span>) limits, triggering node crashes and severing unrelated, active user checkouts.</li>
+          </ul>
+        </div>
+        <div class="content-sub">
+          <pre class="highlight-purple content-sub code">
+[FAILED ROUTING STATE]
+Executor Service ---> K8s Ingress (Round-Robin) ---> Pod A (Session Initiated)
+                                                ---> Pod B (WS Connect -&gt; 502 Bad Gateway)
+                                                     (Pod A becomes an orphaned "Zombie" process)
+          </pre>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: THE ARCHITECTURAL SOLUTION ===== -->
+        <div class="content-sub highlight">
+          <span class="highlight-purple" id="solution"><b>2. The Architectural Solution</b></span>
+        </div>
+        <br>
+        <div class="content-sub">
+          To resolve the routing crisis and establish a foundation for global scale, I collaborated closely with Foxchemy's engineers to design a multi-tiered architecture centered on <span class="highlight-purple">Direct Pod Discovery</span>, <span class="highlight-purple">Header Consistent Hashing</span>, and <span class="highlight-purple">Asynchronous Workload Decoupling</span>.
+        </div>
+        <div class="content-sub">
+          <pre class="highlight-purple content-sub code">
++-----------------------------------------------------------------------------------+
+|                                 GCP VPC NETWORK                                   |
+|                                                                                   |
+|  +-------------------+  1. Fetch Healthy IPs  +--------------------------------+  |
+|  | Execution Service | ---------------------&gt; | Compute Engine API / Discovery |  |
+|  +-------------------+ &lt;--------------------- +--------------------------------+  |
+|            |            2. Return Pod IPs                                         |
+|            |                                                                      |
+|            | 3. Direct Pod Connection (--proxy-server=10.x.x.x)                   |
+|            v                                                                      |
+|  +-----------------------------------------------------------------------------+  |
+|  |                            GKE CLUSTER (us-central1)                        |  |
+|  |                                                                             |  |
+|  |   +---------------------------------------------------------------------+   |  |
+|  |   | Browser-Farm Pod                                                    |   |  |
+|  |   |                                                                     |   |  |
+|  |   |   +------------------+     +------------------+     +-----------+   |   |  |
+|  |   |   | Headless Chrome  | &lt;-&gt; | Local NGINX Proxy| &lt;-&gt; | Downward  |   |   |  |
+|  |   |   | (CDP Port 9222)  |     | (Protocol Norm.) |     | API / IP  |   |   |  |
+|  |   |   +------------------+     +------------------+     +-----------+   |   |  |
+|  |   +---------------------------------------------------------------------+   |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+          </pre>
+        </div>
+        <div class="content-sub">
+          <b>2.1 Pod-Level Discovery &amp; Downward API Injection</b>
+          <br><br>
+          To bypass Layer 7 load balancers that strip connection stickiness, I leveraged the Kubernetes <span class="highlight-purple">Downward API</span> to inject Pod metadata (<span class="highlight">POD_IP</span>, <span class="highlight">POD_NAME</span>) directly into the container environment.
+          <br><br>
+          A custom background daemon (<span class="highlight">start-chrome.sh</span>) continuously intercepts local Chrome DevTools endpoints (<span class="highlight">/json/list</span>), dynamically rewriting <span class="highlight">ws://localhost:9222</span> to the Pod's fully qualified internal Pod IP (<span class="highlight">ws://10.x.x.x:9222</span>). The execution engine queries these rewritten endpoints, forcing the WebSocket handshake to terminate directly at the exact Pod hosting the target browser.
+        </div>
+        <div class="content-sub">
+          <b>2.2 NGINX Header Hashing &amp; GCLB Cookie Affinity</b>
+          <br><br>
+          For external control interfaces and HTTP-based triggers, session stickiness was enforced at the ingress boundary using two complementary strategies:
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">Header-Based Consistent Hashing:</span></b> Configured NGINX Ingress annotations (<span class="highlight">upstream-hash-by: "$http_x_cartai_id"</span>) to map client session identifiers onto a 32-bit consistent hashing ring, guaranteeing that HTTP calls with matching headers route to the same Pod.</li>
+            <li><b><span class="highlight-purple">GCLB Cookie Management:</span></b> For public endpoints routed via Google Cloud External HTTP(S) Load Balancers, cookie-based affinity (<span class="highlight">Set-Cookie: GCLB=...</span>) was enabled with extended backend timeouts (<span class="highlight">timeoutSec: 3600</span>) to keep long-lived WebSocket tunnels active.</li>
+          </ul>
+        </div>
+        <div class="content-sub">
+          <b>2.3 Decoupled Event Pipeline (Pub/Sub + Redis + KEDA)</b>
+          <br><br>
+          To protect execution Pods from sudden traffic bursts, monolithic HTTP endpoints were split into an asynchronous, queue-driven architecture:
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">Ingress Layer:</span></b> Accepts checkout triggers, publishes tasks to <b>Google Cloud Pub/Sub</b>, and returns an instant <span class="highlight">202 Accepted</span> response.</li>
+            <li><b><span class="highlight-purple">Buffer Layer:</span></b> <b>Redis</b> manages ephemeral state and real-time session tracking.</li>
+            <li><b><span class="highlight-purple">Worker Layer:</span></b> Worker Pods pull tasks from the queue based on strict capacity rules (maximum 2 heavy tasks per Pod).</li>
+            <li><b><span class="highlight-purple">Autoscaling:</span></b> <b>KEDA (Kubernetes Event-driven Autoscaling)</b> monitors queue depth, scaling worker Pods proactively <i>before</i> system resource exhaustion occurs.</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: AUTOSCALING & ZERO-DOWNTIME LIFECYCLE ===== -->
+        <div class="content-head" id="autoscaling">
+          3. Advanced Autoscaling &amp; Zero-Downtime Lifecycle Management
+        </div>
+        <div class="content-sub">
+          <b>3.1 The Failure of CPU/Memory HPA</b>
+          <br><br>
+          Traditional Kubernetes Horizontal Pod Autoscalers (HPA) rely on CPU and RAM utilization metrics. In a browser automation farm, this model fails:
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li>Chrome instances maintain persistent WebSocket connections that consume low CPU while idle between execution steps.</li>
+            <li>When a Pod reaches maximum session capacity, Chrome rejects new incoming debugger requests even if system CPU usage remains well within green thresholds.</li>
+          </ul>
+        </div>
+        <div class="content-sub">
+          <b>3.2 Connection-Driven HPA</b>
+          <br><br>
+          I implemented custom metric autoscaling based on active NGINX WebSocket connections derived from the NGINX <span class="highlight">stub_status</span> module:
+          <br><br>
+          <span class="highlight">Active Sessions Per Pod = nginx_active_connections</span>
+        </div>
+        <div class="content-sub">
+          <pre class="highlight-purple content-sub code">
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: browser-farm-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: browser-farm
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Pods
+    pods:
+      metric:
+        name: nginx_active_connections
+      target:
+        type: AverageValue
+        averageValue: 1
+          </pre>
+        </div>
+        <div class="content-sub">
+          <b>3.3 Graceful Shutdown via PreStop Hooks</b>
+          <br><br>
+          To prevent the autoscaler from terminating Pods mid-checkout during scale-down events, a multi-stage shutdown protocol was deployed:
+        </div>
+        <div class="content-sub">
+          <ol>
+            <li><b>HPA Scale-Down Delay:</b> A 300-second stabilization window (<span class="highlight">stabilizationWindowSeconds: 300</span>) prevents rapid infrastructure thrashing.</li>
+            <li><b>PreStop Lifecycle Script:</b> When Kubernetes flags a Pod for deletion, the Pod's Endpoint IP is instantly removed from the service directory (blocking new requests). Simultaneously, a <span class="highlight">preStop</span> hook executes inside the container, polling active TCP sockets on port 9222.</li>
+            <li><b>Guaranteed Task Completion:</b> The Pod effectively <b>"refuses to die"</b> until all active WebSocket sessions finish naturally, ensuring zero mid-execution failures.</li>
+          </ol>
+        </div>
+        <div class="content-sub">
+          <pre class="highlight-purple content-sub code">
+lifecycle:
+  preStop:
+    exec:
+      command: ["/bin/sh", "-c", "while [ $(ss -tan | grep :9222 | grep ESTABLISHED | wc -l) -gt 0 ]; do sleep 5; done"]
+          </pre>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: GEO-DISTRIBUTED IP EMULATION & EDGE SECURITY ===== -->
+        <div class="content-head" id="edge">
+          4. Geo-Distributed IP Emulation &amp; Edge Security
+        </div>
+        <div class="content-sub">
+          <b>4.1 Regional Proxy Fleets (MIGs + Tinyproxy)</b>
+          <br><br>
+          E-commerce target sites aggressively block high-volume traffic coming from known Google Cloud datacenter IP ranges (ASN 15169). To bypass regional blocks and rate-limits, a self-managed <span class="highlight-purple">"Hub-and-Spoke" proxy infrastructure</span> was established:
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">Managed Instance Groups (MIGs):</span></b> Deployed lightweight <span class="highlight">e2-micro</span> Compute Engine instances across target international regions (e.g., India, Europe, US).</li>
+            <li><b><span class="highlight-purple">Automated IP Refresh:</span></b> If a target vendor flags an IP pool, an automated rolling replace command (<span class="highlight">gcloud compute instance-groups managed rolling-action replace</span>) destroys the VM pool and provisions fresh Compute instances with clean public IPs within minutes.</li>
+            <li><b><span class="highlight-purple">VPC Private Routing:</span></b> Internal traffic between GKE Pods in <span class="highlight">us-central1</span> and regional proxy VMs flows securely over Google's global private backbone network.</li>
+          </ul>
+        </div>
+        <div class="content-sub">
+          <b>4.2 Edge Hardening &amp; API Gateway</b>
+          <br><br>
+          <ul>
+            <li><b><span class="highlight-purple">GCP API Gateway:</span></b> Serves as the public entry point (<span class="highlight">ee-api-qa</span>), restricting public routes via API keys and securing internal administrative routes using Google Service Account JWT impersonation.</li>
+            <li><b><span class="highlight-purple">Cloud Armor WAF:</span></b> Deployed Web Application Firewall policies enforcing OWASP top 10 protection, automated bot/scanner blocking, and strict IP rate limiting (50 requests / 2 minutes per IP).</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: FINOPS & DATA EGRESS OPTIMIZATION ===== -->
+        <div class="content-head" id="finops">
+          5. FinOps &amp; Data Egress Optimization
+        </div>
+        <div class="content-sub">
+          Because browser automation involves loading asset-heavy e-commerce pages (HTML, JS, CSS, images), moving raw DOM data across cloud zones and external API boundaries can incur significant networking charges.
+          <br><br>
+          I worked directly with Foxchemy's SREs to conduct a comprehensive data flow analysis, optimizing the payload lifecycle before passing data to external Large Language Models (LLMs):
+        </div>
+        <div class="content-sub">
+          <pre class="highlight-purple content-sub code">
++-----------------------------------------------------------------------------------+
+|                        OPTIMIZED DATA EGRESS FLOW                                 |
+|                                                                                   |
+|  Target E-Commerce Site ---&gt; Ingress to Regional Proxy (18 MB) [FREE]            |
+|                                         |                                         |
+|                                         v Internal Egress ($0.01/GB)              |
+|                             Browser Farm Container                               |
+|                                         |                                         |
+|                                         v Local Filtering &amp; DOM Parsing          |
+|                             Cleaned Output (1 MB)                                |
+|                                         |                                         |
+|                                         v External Egress ($0.12/GB)             |
+|                                   External LLM API                               |
++-----------------------------------------------------------------------------------+
+          </pre>
+        </div>
+        <div class="content-sub">
+          <b>Data Flow Cost Optimization Summary</b>
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">Heavy Ingress is Free:</span></b> Ingesting 18 MB of raw website data from target sites into the regional proxy incurs <b>$0.00</b> in Google Cloud network charges.</li>
+            <li><b><span class="highlight-purple">Internal Data Transfer is Minimal:</span></b> Moving full page payloads internally from Proxy to Browser containers costs <span class="highlight">$0.01/GB</span>.</li>
+            <li><b><span class="highlight-purple">Payload Reduction Before LLM Transmission:</span></b> Raw DOMs (18 MB) are parsed and stripped locally inside the container, extracting only structured JSON and essential screenshots (1 MB) prior to calling external LLM APIs.</li>
+            <li><b><span class="highlight-purple">Financial Impact:</span></b> Reduced outbound network payloads by <b>94%</b>, slashing monthly external egress costs from <b>~$93.00 per 1,000 runs down to ~$5.16</b>.</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: KEY ACHIEVEMENTS & IMPACT ===== -->
+        <div class="content-head" id="impact">
+          6. Key Achievements &amp; Impact
+        </div>
+        <div class="content-sub">
+          <table>
+            <tr>
+              <th>Metric / Objective</th>
+              <th>Before Implementation</th>
+              <th>After Implementation</th>
+            </tr>
+            <tr>
+              <td><b>WebSocket Session Stability</b></td>
+              <td>Frequent <span class="highlight">502 Bad Gateway</span> &amp; orphaned zombie sessions</td>
+              <td><b>100% Session Continuity</b> via direct Pod IP discovery &amp; header affinity</td>
+            </tr>
+            <tr>
+              <td><b>Scale-Down Reliability</b></td>
+              <td>Active checkouts killed abruptly during HPA scale-downs</td>
+              <td><b>Zero Mid-Session Disconnects</b> via connection HPA &amp; <span class="highlight">preStop</span> hooks</td>
+            </tr>
+            <tr>
+              <td><b>IP Block Resolution</b></td>
+              <td>Blocked by target anti-bot systems on GCP ASNs</td>
+              <td><b>Dynamic Regional Egress</b> via automated MIG proxy rotations</td>
+            </tr>
+            <tr>
+              <td><b>Egress Network Efficiency</b></td>
+              <td>18 MB uncompressed DOM sent to LLMs ($0.12/GB)</td>
+              <td><b>1 MB Filtered Payload</b> (94% cost reduction)</td>
+            </tr>
+            <tr>
+              <td><b>Edge Security Posture</b></td>
+              <td>Exposed public endpoints</td>
+              <td><b>Cloud Armor WAF</b> + <b>API Gateway JWT Auth</b></td>
+            </tr>
+          </table>
+        </div>
+        <br>
+
+        <!-- ===== CONCLUSION ===== -->
+        <div class="content-head">
+          7. Conclusion
+        </div>
+        <div class="content-sub">
+          By shifting away from monolithic HTTP architectures and rigid Layer 7 load balancing, <b>Foxchemy</b> built a resilient, event-driven automation platform. The combination of dynamic Pod discovery, custom NGINX session affinity, connection-based autoscaling, and proactive FinOps modeling ensures that Foxchemy can scale its agentic AI checkout platform globally with high availability, robust security, and optimal cost efficiency.
+          <br><br>
+          This project was a deeply collaborative effort — Foxchemy's engineers brought deep product and browser-automation knowledge, and I contributed the GKE, networking, and FinOps expertise to translate their vision into a production-grade system. Watching the platform scale to thousands of concurrent sessions without a single routing failure was incredibly rewarding, and it reinforced how much impact a strong engineer-vendor partnership can have.
+        </div>
+        <br>
+
+        <!-- ===== AUTHOR SECTION ===== -->
+        <div class="author-section author-section-border">
+          <div class="footer-img-section">
+            <img class="footer-img" src="static/images/profile2.png" alt="Author">
+          </div>
+          <div class="author-intro">
+            <b>About Author:</b><br><b>Sinjini Banerjee</b><br><b>Cloud Engineer</b>
+          </div>
+          <div class="next prev">
+            <br>
+            <a class="highlight" href="https://jkp1008shine.github.io/resume-sinjini-banerjee"><b>MAIN PAGE</b></a>
+          </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="center"><br><br><br> &copy; Copyright 2024. All right Reserved.</div>
+        <div class="center">
+          <p id="lastUpdated"></p>
+        </div>
+
+      </div> <!-- closes section2 -->
+    </div> <!-- closes layout div -->
+
+    <script>
+      const lastModified = new Date(document.lastModified);
+      const formattedDate = lastModified.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+      });
+      document.getElementById('lastUpdated').textContent = `Last updated on: ${formattedDate}`;
+    </script>
+
+  </body>
+</html>
