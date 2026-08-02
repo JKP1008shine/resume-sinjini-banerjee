@@ -48,6 +48,11 @@ body.day a:hover strong {
   color: #444444;
 }
 
+/* Day-mode-only black highlight (title accent) */
+body.day .highlight-purple.day-black {
+  color: #555555;
+}
+
 /* Day/Night toggle */
 .theme-toggle {
   position: fixed;
@@ -146,6 +151,26 @@ body.day .theme-toggle .icon-moon {
   padding-bottom: 5px;
 }
 
+.skill-talk-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.skill-talk-columns > div {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.badge-icon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: -0.12em;
+}
+
 .exp {
   margin: 4px 0;
 }
@@ -168,13 +193,11 @@ body.day .theme-toggle .icon-moon {
 .exp-summary:hover h3,
 details.exp[open] .exp-summary h3 {
   color: #718add;
-  border-bottom: 3px solid #718add;
 }
 
 body.day .exp-summary:hover h3,
 body.day details.exp[open] .exp-summary h3 {
   color: #444444;
-  border-bottom-color: #444444;
 }
 
 .exp-desc {

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERPNext to GCP: Modernizing Enterprise Infrastructure</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="static/theme.js" defer></script>
+  </head>
+  <body>
+
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle day/night mode">
+      <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+
+    <div class="main-talk">
+
+      <!-- ===== SECTION 1: HEADER / IMAGE ===== -->
+      <div class="section1">
+        <p class="content-head-docker">Modernizing Enterprise Infrastructure on <span class="highlight-purple day-black">Google Cloud Platform</span></p>
+        <img class="webhook" src="static/images/frappe_to_gcp_main.svg" alt="frappe-to-gcp-overview">
+      </div>
+
+      <!-- ===== SECTION 2: MAIN CONTENT ===== -->
+      <div class="section2">
+
+        <!-- ===== INTRO PARAGRAPH ===== -->
+        <div class="content-sub">
+          As organizations grow, maintaining legacy cloud environments can become a bottleneck to scalability, security, and developer velocity. Client partnered with our engineering team to migrate and modernize its core <span class="highlight-purple">ERPNext infrastructure</span> on Google Cloud Platform (GCP).
+          <br><br>
+          By leveraging <span class="highlight-purple">Google Cloud Foundation Fabric (CFF) modules</span> and implementing a modular, three-state Infrastructure as Code (IaC) model using Terraform, we successfully transformed Client's infrastructure. The new deployment delivers <b>zero-public-IP network security</b>, automated CI/CD application updates, resilient stateful storage, and significant cost savings.
+        </div>
+
+        <!-- ===== QUICK LINKS ===== -->
+        <br>
+        <div class="content-head">
+          <span class="highlight-purple">Quick links</span>
+          <ul class="content-sub">
+            <li><a href="#challenge">The Challenge</a></li>
+            <li><a href="#architecture">Technical Architecture Overview</a></li>
+            <li><a href="#three_state">The Three-State Terraform Model</a></li>
+            <li><a href="#engineering_challenges">Technical Challenges &amp; Engineering Solutions</a></li>
+            <li><a href="#impact">Business Results &amp; Impact</a></li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: THE CHALLENGE ===== -->
+        <div class="content-head" id="challenge">
+          The Challenge
+        </div>
+        <div class="content-sub">
+          Client required a production-grade environment capable of hosting critical enterprise resources without compromising on security or operational flexibility. Key challenges included:
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">Blast Radius Risks:</span></b> The need to ensure that non-production testing, experiments, or teardowns could never inadvertently disrupt production databases or routing configurations.</li>
+            <li><b><span class="highlight-purple">Security Exposure:</span></b> Eliminating public IP addresses on application servers while retaining seamless administrative access and automated software updates.</li>
+            <li><b><span class="highlight-purple">Cost vs. Reliability:</span></b> Designing a staging environment that utilized cost-effective, preemptible compute resources (Spot VMs) without risking data loss or accumulating orphaned storage disks.</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: TECHNICAL ARCHITECTURE OVERVIEW ===== -->
+        <div class="content-head" id="architecture">
+          Technical Architecture Overview
+        </div>
+        <div class="content-sub">
+          To meet these requirements, we designed a multi-tiered topology using <span class="highlight-purple">GCP Global Load Balancers</span> that proxy web traffic down to internal, private Compute Engine instances.
+        </div>
+        <div class="content-sub">
+          <b>Key Topology Highlights</b>
+          <ul>
+            <li><b><span class="highlight-purple">Production Environment (erp.client.com):</span></b> Serves live enterprise traffic via <b>production-glb</b> to a high-availability <b>n2d-standard-8</b> instance in <b>us-east4-a</b>.</li>
+            <li><b><span class="highlight-purple">Staging Environment (beta.erp.client.com):</span></b> Directs developer traffic via <b>spot-glb</b> to a cost-optimized <b>n2d-standard-2</b> Spot VM in <b>us-central1-a</b>.</li>
+          </ul>
+        </div>
+        <input type="checkbox" id="zoom-arch" class="zoom-checkbox">
+        <label for="zoom-arch" class="zoom-thumb">
+          <img class="img-solution" src="static/images/frappe_to_gcp_arch.png" alt="frappe-to-gcp-architecture">
+        </label>
+        <label class="zoom-overlay" for="zoom-arch">
+          <img src="static/images/frappe_to_gcp_arch.png" alt="frappe-to-gcp-architecture">
+        </label>
+        <br>
+
+        <!-- ===== SECTION: THE THREE-STATE TERRAFORM MODEL ===== -->
+        <div class="content-sub highlight">
+          <span class="highlight-purple" id="three_state"><b>The Three-State Terraform Model</b></span>
+        </div>
+        <br>
+        <div class="content-sub">
+          Instead of relying on a monolithic state file, we split the infrastructure into three completely isolated Terraform backends:
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">shared State (backend-shared.hcl):</span></b> Manages foundational resources — including VPC networking, Cloud NAT, external static IPs, global Load Balancers, IAM access policies, Secret Manager, and Cloud Build triggers.</li>
+            <li><b><span class="highlight-purple">test State (backend-test.hcl):</span></b> Owns the ephemeral Spot VM, persistent test storage volumes, snapshot policies, and automated recovery logic.</li>
+            <li><b><span class="highlight-purple">prod State (backend-prod.hcl):</span></b> Handles dedicated production Compute Engine instances, system boot volumes, and persistent data drives.</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: HOW USE CASES WERE COVERED ===== -->
+        <div class="content-head">
+          How Use Cases Were Covered
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">Zero-Public-IP Security Profile:</span></b> All Compute Engine instances run on internal IP addresses only. Outbound internet access for software dependencies (apt) is routed securely via Cloud NAT. Administrative SSH access is granted strictly through Identity-Aware Proxy (IAP) tunnels, eliminating public jump boxes.</li>
+            <li><b><span class="highlight-purple">Cost-Efficient Staging Framework:</span></b> The test environment runs on preemptible Spot VMs. Combined with automated daily disk snapshot schedules (02:00 UTC, 7-day retention), Client achieves maximum cost efficiency with guaranteed data durability.</li>
+            <li><b><span class="highlight-purple">Continuous Delivery Automation:</span></b> Cloud Build triggers integrate directly with GitHub, automating application migrations and builds over secure IAP tunnels whenever code is pushed.</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: BALANCING AUTOMATION ===== -->
+        <div class="content-head">
+          Balancing Automation with Conscious Control
+        </div>
+        <div class="content-sub">
+          A mature infrastructure framework automates repetitive operations while keeping critical governance controls manual. Here is how we established that balance:
+        </div>
+        <div class="content-sub">
+          <b>What We Automated</b>
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">Infrastructure Provisioning:</span></b> VPCs, Cloud NAT, firewall boundaries, Load Balancers, SSL configurations, and IAM roles are fully codified via Terraform.</li>
+            <li><b><span class="highlight-purple">Storage Initialization:</span></b> Custom boot startup scripts (startup_script.sh) automatically detect new storage drives, format them to ext4, mount them to /data, and register them in /etc/fstab.</li>
+            <li><b><span class="highlight-purple">Application Updates:</span></b> Test deployments run automatically via Cloud Build triggers executing <span class="highlight">bench migrate &amp;&amp; bench build</span> upon code check-ins.</li>
+            <li><b><span class="highlight-purple">Disaster Recovery:</span></b> Daily automated snapshot policies safeguard both boot and data volumes.</li>
+          </ul>
+        </div>
+        <div class="content-sub">
+          <b>What We Kept Consciously Manual</b>
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">Production Auto-Deployments:</span></b> To ensure strict governance, the automated production deployment trigger (app-deploy-prod) is set to <span class="highlight">disabled = true</span> by default. Production code pushes require deliberate manual invocation.</li>
+            <li><b><span class="highlight-purple">Deploy Key Metadata Pairing:</span></b> Registering the generated deployment public SSH key to GCP project metadata remains an intentional, one-time manual verification step.</li>
+            <li><b><span class="highlight-purple">Filesystem Partition Expansion:</span></b> While expanding storage size via Terraform resizes the cloud block volume, extending the OS filesystem requires an explicit operator command (<span class="highlight">sudo resize2fs</span>) to prevent inadvertent partition corruption.</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== SECTION: TECHNICAL CHALLENGES ===== -->
+        <div class="content-head" id="engineering_challenges">
+          Technical Challenges &amp; Engineering Solutions
+        </div>
+        <div class="content-sub">
+          <b>Challenge 1: Resolving Cross-State Circular Dependencies</b>
+          <br><br>
+          <b>Problem:</b> The global Load Balancer lives in the shared state, but the Unmanaged Instance Groups it targets are created alongside the VMs in the test and prod states. During initial creation, the shared state could not resolve the instance group links because the compute instances did not yet exist.
+          <br><br>
+          <b>Solution:</b> We established a clear, three-phase deployment sequence:
+        </div>
+        <div class="content-sub">
+          <ol>
+            <li>Apply <b>shared</b> state to establish the VPC network, firewall rules, and Load Balancer framework.</li>
+            <li>Apply <b>test</b> and <b>prod</b> states to create the VMs, persistent storage disks, and local Unmanaged Instance Groups.</li>
+            <li>Re-apply <b>shared</b> state to dynamically bind the newly created instance groups into the active Load Balancer backend service pools.</li>
+          </ol>
+        </div>
+        <div class="content-sub">
+          <b>Challenge 2: Mitigating Data Loss &amp; Disk Sprawl on Spot VMs</b>
+          <br><br>
+          <b>Problem:</b> Standard Spot VM re-creations often replace inline boot/data disks, leading to potential data loss or an accumulation of orphaned, unmapped storage drives.
+          <br><br>
+          <b>Solution:</b> We introduced independent disk lifecycles using <span class="highlight">reuse_existing_disks = true</span>. Boot and data drives were promoted to standalone <span class="highlight">google_compute_disk</span> resources with <span class="highlight">auto_delete = false</span>. When a Spot VM is preempted or re-created, the instance automatically reattaches the existing, unformatted independent storage drives — zero data lost, zero orphan disks accumulated.
+        </div>
+        <div class="content-sub">
+          <b>Challenge 3: Load Balancer Health Probe Routing to Private VMs</b>
+          <br><br>
+          <b>Problem:</b> Initial Load Balancer checks reported UNHEALTHY status (502 Gateway Errors) because health check probes were blocked from reaching the private application instances.
+          <br><br>
+          <b>Solution:</b> We configured specific firewall rules (<span class="highlight">allow-lb-to-production-vm</span>) allowing TCP traffic on ports 80, 443, and 8000 from Google's health check IP ranges for instances carrying the <span class="highlight">web-frontend</span> tag. We also aligned the Load Balancer backend protocol to HTTP over port 80 to match Nginx's internal proxy behavior.
+        </div>
+        <br>
+
+        <!-- ===== SECTION: BUSINESS RESULTS ===== -->
+        <div class="content-head" id="impact">
+          Business Results &amp; Impact
+        </div>
+        <div class="content-sub">
+          <ul>
+            <li><b><span class="highlight-purple">Zero-Downtime Infrastructure Operations:</span></b> Decoupled states allow engineering teams to maintain, upgrade, or destroy test environments without risking production uptime.</li>
+            <li><b><span class="highlight-purple">Hardened Security Posture:</span></b> Removing public IP addresses across all compute instances and enforcing IAP-only SSH drastically reduced the environment's external attack surface.</li>
+            <li><b><span class="highlight-purple">Optimized Total Cost of Ownership (TCO):</span></b> Combining Spot VMs with stateful persistent storage reduced non-production cloud spend significantly while guaranteeing data durability.</li>
+          </ul>
+        </div>
+        <br>
+
+        <!-- ===== AUTHOR SECTION ===== -->
+        <div class="author-section author-section-border">
+          <div class="footer-img-section">
+            <img class="footer-img" src="static/images/profile2.png" alt="Author">
+          </div>
+          <div class="author-intro">
+            <b>About Author:</b><br><b>Sinjini Banerjee</b><br><b>Cloud Engineer at D3V Technology Solutions</b>
+          </div>
+          <div class="next prev">
+            <br>
+            <a class="highlight" href="https://jkp1008shine.github.io/resume-sinjini-banerjee"><b>MAIN PAGE</b></a>
+          </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="center"><br><br><br> &copy; Copyright 2024. All right Reserved.</div>
+        <div class="center">
+          <p id="lastUpdated"></p>
+        </div>
+
+      </div> <!-- closes section2 -->
+    </div> <!-- closes layout div -->
+
+    <script>
+      const lastModified = new Date(document.lastModified);
+      const formattedDate = lastModified.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+      });
+      document.getElementById('lastUpdated').textContent = `Last updated on: ${formattedDate}`;
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#718add"/>
+    </marker>
+  </defs>
+
+  <!-- GitHub / Cloud Build row -->
+  <rect x="30" y="24" width="150" height="54" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="105" y="56" text-anchor="middle" font-size="14" fill="#1a1a2e">GitHub Repo</text>
+
+  <line x1="180" y1="51" x2="246" y2="51" stroke="#718add" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="250" y="24" width="200" height="54" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="350" y="48" text-anchor="middle" font-size="14" fill="#1a1a2e">Cloud Build</text>
+  <text x="350" y="66" text-anchor="middle" font-size="11" fill="#3a4a8f">triggers (bench migrate &amp; build)</text>
+
+  <!-- dashed flow from Cloud Build down to app updates on VMs -->
+  <line x1="350" y1="78" x2="350" y2="270" stroke="#718add" stroke-width="1.6" stroke-dasharray="5,5"/>
+  <text x="356" y="180" font-size="11" fill="#3a4a8f">automated app</text>
+  <text x="356" y="193" font-size="11" fill="#3a4a8f">updates via IAP</text>
+
+  <!-- Row: Users / prod path -->
+  <rect x="30" y="110" width="150" height="70" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="105" y="146" text-anchor="middle" font-size="14" fill="#1a1a2e">Users /</text>
+  <text x="105" y="164" text-anchor="middle" font-size="14" fill="#1a1a2e">Internet</text>
+
+  <line x1="180" y1="145" x2="246" y2="145" stroke="#718add" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="250" y="110" width="200" height="70" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="350" y="145" text-anchor="middle" font-size="14" fill="#1a1a2e">production-glb</text>
+  <text x="350" y="163" text-anchor="middle" font-size="11" fill="#3a4a8f">erp.client.com</text>
+
+  <line x1="450" y1="145" x2="516" y2="145" stroke="#718add" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="520" y="110" width="210" height="70" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="625" y="145" text-anchor="middle" font-size="14" fill="#1a1a2e">Backend service</text>
+  <text x="625" y="163" text-anchor="middle" font-size="11" fill="#3a4a8f">+ Unmanaged Instance Group</text>
+
+  <line x1="730" y1="145" x2="776" y2="145" stroke="#718add" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="780" y="110" width="150" height="70" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="855" y="145" text-anchor="middle" font-size="14" fill="#1a1a2e">n2d-standard-8</text>
+  <text x="855" y="163" text-anchor="middle" font-size="11" fill="#3a4a8f">us-east4-a</text>
+
+  <!-- Row: Developers / test path -->
+  <rect x="30" y="220" width="150" height="70" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="105" y="256" text-anchor="middle" font-size="14" fill="#1a1a2e">Developers</text>
+  <text x="105" y="274" text-anchor="middle" font-size="11" fill="#3a4a8f">beta traffic</text>
+
+  <line x1="180" y1="255" x2="246" y2="255" stroke="#718add" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="250" y="220" width="200" height="70" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="350" y="255" text-anchor="middle" font-size="14" fill="#1a1a2e">spot-glb</text>
+  <text x="350" y="273" text-anchor="middle" font-size="11" fill="#3a4a8f">beta.erp.client.com</text>
+
+  <line x1="450" y1="255" x2="516" y2="255" stroke="#718add" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="520" y="220" width="210" height="70" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="625" y="255" text-anchor="middle" font-size="14" fill="#1a1a2e">Backend service</text>
+  <text x="625" y="273" text-anchor="middle" font-size="11" fill="#3a4a8f">+ Unmanaged Instance Group</text>
+
+  <line x1="730" y1="255" x2="776" y2="255" stroke="#718add" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="780" y="220" width="150" height="70" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="855" y="250" text-anchor="middle" font-size="14" fill="#1a1a2e">n2d-standard-2</text>
+  <text x="855" y="266" text-anchor="middle" font-size="13" fill="#1a1a2e">Spot VM</text>
+  <text x="855" y="282" text-anchor="middle" font-size="11" fill="#3a4a8f">us-central1-a</text>
+
+  <!-- Disks -->
+  <rect x="780" y="380" width="150" height="70" rx="10" fill="#eef1ff" stroke="#718add" stroke-width="1.6" stroke-dasharray="4,4"/>
+  <text x="855" y="412" text-anchor="middle" font-size="13" fill="#1a1a2e">Independent disks</text>
+  <text x="855" y="428" text-anchor="middle" font-size="11" fill="#3a4a8f">auto_delete=false</text>
+  <text x="855" y="442" text-anchor="middle" font-size="11" fill="#3a4a8f">daily snapshot 02:00 UTC</text>
+
+  <line x1="855" y1="180" x2="855" y2="376" stroke="#718add" stroke-width="1.6" stroke-dasharray="5,5"/>
+
+  <!-- Cloud NAT -->
+  <rect x="30" y="340" width="210" height="56" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="135" y="362" text-anchor="middle" font-size="14" fill="#1a1a2e">Cloud NAT</text>
+  <text x="135" y="380" text-anchor="middle" font-size="11" fill="#3a4a8f">outbound apt / package access</text>
+
+  <!-- IAP -->
+  <rect x="280" y="340" width="240" height="56" rx="10" fill="#dbe4ff" stroke="#718add" stroke-width="2"/>
+  <text x="400" y="362" text-anchor="middle" font-size="14" fill="#1a1a2e">IAP tunnels</text>
+  <text x="400" y="380" text-anchor="middle" font-size="11" fill="#3a4a8f">admin SSH — no public jump boxes</text>
+
+  <!-- Legend -->
+  <text x="30" y="430" font-size="12" fill="#3a4a8f">All Compute Engine instances run on internal IPs only.</text>
+  <text x="30" y="450" font-size="12" fill="#3a4a8f">Terraform split into three isolated backends: shared / test / prod.</text>
+</svg>
