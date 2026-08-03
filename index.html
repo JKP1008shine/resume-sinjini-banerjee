@@ -10,6 +10,13 @@
       <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
+    <button class="pdf-button" id="pdfButton" aria-label="Download as PDF" title="Download as PDF">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </button>
     <div class = "main">
       <div class = "section1">
         <div class="profile-wrap">
@@ -240,8 +247,11 @@
           Meet Sinjini<span class="short-content"> (she/her) pronounced as [SHIN-jee-nee]</span>
         </div>
         <div class="content-sub"> 
-        Hey, professionals! Welcome to my page of flexing! Here, I have flexed—uhh, okay, showcased—some of my skills that might interest you too ;) I’ve explored and figured out that cloud computing and DevOps are the domains I was looking for. Managing infrastructure, maintaining it no matter how complex, and ensuring everything runs smoothly, even during development, fascinates me. No matter the complexity or scale, automating the lifecycle with Infrastructure as Code (IaC) and other tools pushes me to learn more every day...
+        Hey, professionals! Welcome to my page. It’s been a while since I started logging my work here — right from the day I began my career as a cloud engineer. Here, I showcase some of my skills that might interest you too ;) Along the way, I’ve explored and figured out that cloud computing and DevOps are the domains I was truly looking for. Managing infrastructure, maintaining it no matter how complex, and ensuring everything runs smoothly — even during development — fascinates me. No matter the complexity or scale, automating the lifecycle with Infrastructure as Code (IaC) and other tools pushes me to learn more every day...
       </div>
+        <div class="content-sub">
+          <br>Over the years, I’ve played plenty of roles — FinOps manager, DevOps lead, SecOps lead, and customer engineer — enough to dedicate this entire page to them. Slowly but surely, I’m going to give each of them a talk of its own. Here’s a cheers to my years of “Opsing!”
+        </div>
         <div class="skill-talk-columns">
           <div class="skill-column">
             <div class="content-head">
@@ -441,6 +451,30 @@
       });
 
       document.getElementById('lastUpdated').textContent = `Last updated on: ${formattedDate}`;
+
+      document.getElementById('pdfButton').addEventListener('click', function () {
+        const details = document.querySelectorAll('details');
+        const states = [];
+        details.forEach(function (d) { states.push(d.open); d.open = true; });
+        const originalTitle = document.title;
+        document.title = 'resume-sinjini-banerjee';
+        function restore() {
+          details.forEach(function (d, i) { d.open = states[i]; });
+          document.title = originalTitle;
+          window.removeEventListener('afterprint', restore);
+        }
+        window.addEventListener('afterprint', restore);
+        window.print();
+      });
+
+      let scrollTimer;
+      window.addEventListener('scroll', function () {
+        document.body.classList.add('scrolling');
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(function () {
+          document.body.classList.remove('scrolling');
+        }, 200);
+      }, { passive: true });
     </script>
   </body>
 </html> 
