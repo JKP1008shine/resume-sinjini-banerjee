@@ -140,6 +140,11 @@ body.scrolling .pdf-button {
   pointer-events: none;
 }
 
+/* Purple frame drawn around the page in the exported PDF */
+.pdf-frame {
+  display: none;
+}
+
 .main{
   display: grid;
   grid-template-columns: 1fr 3fr 1fr;
@@ -836,16 +841,36 @@ body:not(.day) .flower.l4 { transform: scale(0.15) rotate(-18deg); }
 
 /* Print / PDF export */
 @media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
   body,
   body.day {
     background: #ffffff !important;
+    margin: 0;
+    padding: 0;
   }
 
   .theme-toggle,
   .pdf-button,
   .night-sky,
-  .flowers {
+  .flowers,
+  .pdf-frame {
     display: none !important;
+  }
+
+  .work-log-head {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .main {
+    display: block;
+    padding: 12mm;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
 
   body .section1,
@@ -870,10 +895,6 @@ body:not(.day) .flower.l4 { transform: scale(0.15) rotate(-18deg); }
 
   body .short-content {
     color: #888888 !important;
-  }
-
-  .main {
-    display: block;
   }
 
   .section1 {
