@@ -270,6 +270,8 @@
                   <details>
                     <summary>GCP</summary>
                     <ul>
+                      <li><a href="https://www.credly.com/badges/35d68b7a-f43c-4a39-8255-bc6ff05f5b96">Networking Pro</a></li>
+                      <li><a href="https://www.credly.com/badges/2a6c1ec8-10ea-4cdb-8d33-0c3ae97c1f79">Data Pro</a></li>
                       <li><a href="https://www.credly.com/badges/d0d2bb13-8c38-4cab-99e7-a47b5aa648cd">Cloud Ace</a></li>
                       <li><a href="https://www.credly.com/badges/21b6cb17-3cae-4de3-9e0f-85d043e1d5b0">Agent Whisperer</a></li>
                       <li><a href="https://www.credly.com/badges/6a8a7ed9-1594-4337-8f72-1315722bd0b1">Gemini Deployer</a></li>
@@ -455,18 +457,12 @@
       document.getElementById('lastUpdated').textContent = `Last updated on: ${formattedDate}`;
 
       document.getElementById('pdfButton').addEventListener('click', function () {
-        const details = document.querySelectorAll('details');
-        const states = [];
-        details.forEach(function (d) { states.push(d.open); d.open = true; });
-        const originalTitle = document.title;
-        document.title = 'resume-sinjini-banerjee';
-        function restore() {
-          details.forEach(function (d, i) { d.open = states[i]; });
-          document.title = originalTitle;
-          window.removeEventListener('afterprint', restore);
-        }
-        window.addEventListener('afterprint', restore);
-        window.print();
+        const a = document.createElement('a');
+        a.href = 'static/Resume-Sinjini-Banerjee.pdf';
+        a.download = 'Resume-Sinjini-Banerjee.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       });
 
       let scrollTimer;
