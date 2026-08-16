@@ -356,6 +356,19 @@
             </summary>
             <div class="exp-desc">
               <div class="exp-month">
+                <span class="exp-month-title">August 2026</span>
+                <ul class="exp-month-detail">
+                  <li><b>Cryptosoft Platform &middot; Incident Response &amp; Secure Rebuild:</b> Led the forensic investigation and secure rebuild of a compromised WordPress platform (cryptosoft-platform / dependencytrack.com).
+                    <ul>
+                      <li><b>Forensics via IAP:</b> Investigated a public-IP WordPress VM breached through exposed SSH (cryptominer/botnet payload; root login from a hostile scanning range). Identified malware persistence (trojanized libudev.so, cron/init.d chain, fake kernel threads), collected IoCs, and mapped the kill-chain to MITRE ATT&amp;CK.</li>
+                      <li><b>Data Sanitization:</b> Recovered and scrubbed database dumps and uploads in an isolated sandbox &mdash; purged sessions, invalidated all password hashes, removed secrets, and stripped executable files.</li>
+                      <li><b>Secure Rebuild (Terraform + Cloud Foundation Fabric):</b> Rebuilt as a private, defense-in-depth platform &mdash; no public IP, IAP-only SSH, HTTPS load balancer with a Google-managed certificate, default-deny firewall, restricted Cloud NAT egress, fresh WordPress core, and credentials in Secret Manager.</li>
+                      <li><b>DNS Cutover &amp; Observability:</b> Cut over dependencytrack.com / www / staging to the new load balancer, delivered the as-built doc + ops runbook, and aligned Cloud Monitoring alerting.</li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+              <div class="exp-month">
                 <span class="exp-month-title">March 2026 - current</span>
                 <ul class="exp-month-detail">
                   <li><b>AI Cart-Based Project &middot; Incident Response &amp; Reliability:</b> Led RCA for a critical staging outage, enforcing GitOps pipeline-only cluster deployments, LF line-ending standardization, and local workspace parity checks (mu tooling) to eliminate configuration drift.</li>
